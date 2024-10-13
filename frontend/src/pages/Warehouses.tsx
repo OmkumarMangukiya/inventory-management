@@ -2,58 +2,135 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../Components/Button";
 import { useNavigate } from "react-router-dom";
-export const Warehouses  =()=>{
-    interface Warehouse {
-        id: number;
-        name: string;
-        location: string;
-        totalstock: number;
+export const Warehouses = () => {
+  interface Warehouse {
+    id: number;
+    name: string;
+    location: string;
+    totalstock: number;
+  }
+
+  const navigate = useNavigate();
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [filterText, setFilterText] = useState<string>("");
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Warehouse; direction: "ascending" | "descending" }>({ key: "name", direction: "ascending" });
+
+  const fetchData = async () => {
+    try {
+      const roles = localStorage.getItem("role");
+      const response = await axios.get("http://localhost:8787/warehouses", {
+        headers: {
+          role: roles,
+        },
+      });
+      setWarehouses(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching warehouse data:", error);
+      setError("Failed to load warehouse data.");
+      setLoading(false);
     }
-    const navigate = useNavigate()
-    const [warehouse, setWarehouses] = useState<Warehouse[]>([]);
-    const fetchData = async () => {
-        try {
-          // Replace with your actual API endpoint
-          const roles= localStorage.getItem('role')
-          const response = await axios.get(`http://localhost:8787/warehouses`,{
-            
-                headers: {
-                    role: roles
-                }
-            
-          });
-          
-          setWarehouses(response.data);
-        } catch (error) {
-          console.error('Error fetching warehouse data:', error);
-        }
-      };
-    
-      useEffect(() => {
-        fetchData();
-      }, []);
-    return (
-        <div>
-            <h1>Warehouses</h1>
-            <table className="table table-striped table-bordered">
-  <thead className="thead-dark ">
-    <tr className="">
-      <th scope="col">Warehouse Name</th>
-      <th scope="col">Location</th>
-      <th scope="col">Total Stock</th>
-    </tr>
-  </thead>
-  <tbody>
-    {warehouse.map((wh) => (
-      <tr key={wh.id}>
-        <td>{wh.name}</td>
-        <td>{wh.location}</td>
-        <td>{wh.totalstock}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-<Button name="Add warehouse" onClick={()=>navigate('/addwarehouse')} ></Button>
-        </div>
-    );
-}
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const requestSort = (key: keyof Warehouse) => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedWarehouses = [...warehouses].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === "ascending" ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === "ascending" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const filteredWarehouses = sortedWarehouses.filter(
+    (wh) =>
+      wh.name.toLowerCase().includes(filterText.toLowerCase()) ||
+      wh.location.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  return (
+    <div className="container mx-auto mt-10 p-6 bg-gray-100 rounded-lg shadow-md">
+    <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Warehouses</h1>
+  
+    <div className="mb-4">
+      <input
+        type="text"
+        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+        placeholder="Search by warehouse name or location..."
+        value={filterText}
+        onChange={(e) => setFilterText(e.target.value)}
+      />
+    </div>
+  
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto bg-white shadow-md rounded-lg">
+        <thead>
+          <tr className="bg-gray-800 text-white">
+            <th
+              onClick={() => requestSort("name")}
+              className="p-4 text-left cursor-pointer hover:bg-gray-700 transition duration-200"
+            >
+              Warehouse Name{" "}
+              {sortConfig.key === "name" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => requestSort("location")}
+              className="p-4 text-left cursor-pointer hover:bg-gray-700 transition duration-200"
+            >
+              Location{" "}
+              {sortConfig.key === "location" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => requestSort("totalstock")}
+              className="p-4 text-left cursor-pointer hover:bg-gray-700 transition duration-200"
+            >
+              Total Stock{" "}
+              {sortConfig.key === "totalstock" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredWarehouses.map((wh) => (
+            <tr key={wh.id} className="hover:bg-gray-100 transition duration-200">
+              <td className="p-4 border-t border-gray-300">{wh.name}</td>
+              <td className="p-4 border-t border-gray-300">{wh.location}</td>
+              <td className="p-4 border-t border-gray-300">{wh.totalstock}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  
+    <div className="mt-6 text-right">
+      <Button
+        name="Add warehouse"
+        onClick={() => navigate("/addwarehouse")}
+        
+      />
+    </div>
+  </div>
+  
+  );
+};
