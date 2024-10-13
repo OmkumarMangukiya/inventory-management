@@ -1,20 +1,17 @@
-import { app, BrowserWindow } from "electron";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-process.env.APP_ROOT = path.join(__dirname, "..");
+import { app, BrowserWindow, Menu, shell } from "electron";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
+const MAIN_DIST = join(__dirname, "../dist-electron");
+const RENDERER_DIST = join(__dirname, "../dist");
 let win;
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: join(RENDERER_DIST, "electron-vite.svg"),
     webPreferences: {
-      preload: path.join(__dirname, "preload.mjs")
+      preload: join(__dirname, "preload.mjs")
     }
   });
   win.webContents.on("did-finish-load", () => {
@@ -23,13 +20,30 @@ function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
-    win.loadFile(path.join(RENDERER_DIST, "index.html"));
+    win.loadFile(join(RENDERER_DIST, "index.html"));
+  }
+  const menu = Menu.buildFromTemplate(menuTemplate);
+  Menu.setApplicationMenu(menu);
+}
+function refreshApp() {
+  if (win && VITE_DEV_SERVER_URL) {
+    win.loadURL(VITE_DEV_SERVER_URL);
   }
 }
+function goBack() {
+  if (win && win.webContents.canGoBack()) {
+    win.webContents.goBack();
+  }
+}
+function goForward() {
+  if (win && win.webContents.canGoForward()) {
+    win.webContents.goForward();
+  }
+}
+app.whenReady().then(createWindow);
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
-    win = null;
   }
 });
 app.on("activate", () => {
@@ -37,9 +51,68 @@ app.on("activate", () => {
     createWindow();
   }
 });
-app.whenReady().then(createWindow);
+const menuTemplate = [
+  {
+    label: "View",
+    submenu: [
+      {
+        label: "Refresh",
+        accelerator: "CmdOrCtrl+R",
+        click: () => {
+          refreshApp();
+        }
+      },
+      {
+        label: "Backward",
+        accelerator: "CmdOrCtrl+Left",
+        click: () => {
+          goBack();
+        }
+      },
+      {
+        label: "Forward",
+        accelerator: "CmdOrCtrl+Right",
+        click: () => {
+          goForward();
+        }
+      },
+      { type: "separator" },
+      { role: "reload" },
+      { role: "forceReload" },
+      { role: "toggleDevTools" },
+      { type: "separator" },
+      { role: "resetZoom" },
+      { role: "zoomIn" },
+      { role: "zoomOut" },
+      { type: "separator" },
+      { role: "togglefullscreen" }
+    ]
+  },
+  {
+    label: "Window",
+    submenu: [
+      { role: "minimize" },
+      { role: "zoom" },
+      { role: "close" }
+    ]
+  },
+  {
+    role: "help",
+    submenu: [
+      {
+        label: "Learn More",
+        click: async () => {
+          await shell.openExternal("https://electronjs.org");
+        }
+      }
+    ]
+  }
+];
 export {
   MAIN_DIST,
   RENDERER_DIST,
-  VITE_DEV_SERVER_URL
+  VITE_DEV_SERVER_URL,
+  goBack,
+  goForward,
+  refreshApp
 };
