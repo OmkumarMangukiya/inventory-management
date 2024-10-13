@@ -31,8 +31,6 @@ const  [location, setLocation] = useState("");
                 <Input type="text" placeholder="Warehouse Name" onChange={(e)=>setName(e.target.value)}/>
                 <Input type="text" placeholder="Warehouse Location" onChange={(e)=>setLocation(e.target.value)}/>
                 <Button name="Add Warehouse" onClick={() => { handleClick(); navigate('/warehouses'); }}/>
-                
-
             </form>
         </div>
     )

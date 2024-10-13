@@ -31,73 +31,79 @@ export const Signup = () => {
       .catch((error: Error) => {
         console.error("There was an error signing in!", error);
       });
+      axios.post(`http://localhost:8787/users/role`,{},{
+        headers:{
+            role : localStorage.getItem('role')
+        }
+    })
+    .then((response:{data:{headTo:string}})=>{
+        console.log(response.data.headTo)
+        navigate(`/${response.data.headTo}`)
+    })
+    .catch((error:Error)=>{
+        console.error("There was an error getting the role!", error);
+    })
   };
   return (
-    <div className="flex justify-around">
-      {/* <div className="bg-blue-100 w-full flex justify-center transition-all hover:shadow-inner text-4xl pt-80 px-60 font-medium" >
-            Splitting Money is now &nbsp;
-            
-                <div className=" text-green-600">
-                    easy
-                </div>
-            </div> */}
-      <div className="flex items-center w-full justify-center min-h-screen  bg-gray-200 border-s-2 border-black">
-        <div className="w-full max-w-sm p-8 bg-white rounded-md shadow-md">
-          <div className="flex justify-center text-xl mb-4">
-            <h2 className="mb-6">Sign Up Page</h2>
-          </div>
-          <div className="mb-8">
-            <Input
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              type="email"
-            />
-          </div>
-          <div className="mb-8 min-w-36">
-            <Input
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-              type="text"
-            />
-          </div>
-          <div className="mb-8">
-            <Input
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              type="password"
-            />
-          </div>
-
-          <div className="mb-8 border-2 border-black rounded-lg">
-            <select
-              onChange={(e) => setrole(e.target.value)}
-              className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select a role
-              </option>
-              <option value="manager">Manager</option>
-              <option value="headmanager">Head Manager</option>
-              <option value="owner">Owner</option>
-            </select>
-          </div>
-          <div>
-            <Button name="Sign in" onClick={handleSignIn} />
-          </div>
-          <div className="flex ">
-            <div className="pt-2 pr-2">Have a account?</div>
-            <button
-              className="pt-2 text-green-500 font-medium"
-              onClick={() => {
-                navigate("/");
-              }}
-            >
-              Sign In{" "}
-            </button>
-          </div>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-gray-800 to-gray-900 relative">
+        <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl">
+            <div className="text-center text-2xl font-semibold mb-6 text-gray-700">
+                Sign Up Page
+            </div>
+            <div className="mb-6">
+                <Input
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    type="email"
+                />
+            </div>
+            <div className="mb-6">
+                <Input
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username"
+                    type="text"
+                />
+            </div>
+            <div className="mb-6">
+                <Input
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    type="password"
+                />
+            </div>
+            <div className="mb-6">
+                <label htmlFor="role" className="block mb-2 text-sm font-medium text-gray-700">
+                    Role
+                </label>
+                <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setrole(e.target.value)}
+                    className="w-full px-4 py-2 text-gray-700 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
+                >
+                    <option value="" disabled>
+                        Select a role
+                    </option>
+                    <option value="manager">Manager</option>
+                    <option value="headmanager">Head Manager</option>
+                    <option value="owner">Owner</option>
+                </select>
+            </div>
+            <div className="mb-4">
+                <Button name="Sign Up" onClick={handleSignIn} />
+            </div>
+            <div className="flex justify-center text-sm">
+                <span className="text-gray-600 mr-2">Have an account?</span>
+                <button
+                    className="text-black font-medium hover:text-blue-500 hover:underline transition-colors duration-300"
+                    onClick={() => {
+                        navigate("/");
+                    }}
+                >
+                    Sign In
+                </button>
+            </div>
         </div>
-      </div>
     </div>
-  );
+);
 };

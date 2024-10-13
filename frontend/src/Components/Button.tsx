@@ -1,13 +1,19 @@
+import React from 'react';
+
 interface ButtonProps {
     name: string;
-    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    onClick: () => void;
 }
-const Button = ({ name, onClick }: ButtonProps) => {
+
+const Button: React.FC<ButtonProps> = ({ name, onClick }) => {
     return (
-        <button onClick={onClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <button
+            onClick={onClick}
+            className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg shadow-md transition-all duration-300 ease-in-out hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-black"
+        >
             {name}
         </button>
     );
-}
+};
 
 export default Button;

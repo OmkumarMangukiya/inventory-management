@@ -21,7 +21,7 @@ const warehouses = app.get('warehouses', async (c) => {
     }).$extends(withAccelerate());
     try {
         const wh = await prisma.warehouse.findMany();
-        console.log('Warehouses:', wh);
+        // console.log('Warehouses:', wh);
         if (wh.length === 0) {
           console.log('No warehouses found.');
         }
