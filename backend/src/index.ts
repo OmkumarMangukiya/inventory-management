@@ -5,6 +5,7 @@ import role from './routes/role'
 import warehouses  from './routes/warehouses'
 import addWareshouse from './routes/addWarehouse'
 import warehouse  from './routes/warehouse'
+import deleteWarehouse from './routes/deleteWarehouse'
 import addProduct  from './routes/addProduct'
 const app = new Hono<{
     Bindings:{
@@ -18,5 +19,6 @@ app.route('/users',role)
 app.route('/',warehouses);
 app.route('/',addWareshouse)
 app.route('/',warehouse)
+app.route('/',deleteWarehouse)
 app.route('/',addProduct)
 export default app

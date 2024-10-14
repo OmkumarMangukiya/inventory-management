@@ -15,6 +15,7 @@ const Warehouse = ()=>{
         expiry : Date,
         
     }
+    
     const navigate = useNavigate()
     useEffect(() => {
         const fetchData = async () => {
