@@ -12,16 +12,11 @@ const app = new Hono<{
 
 const warehouses = app.get('warehouses', async (c) => {
     const role = c.req.header('role');
-    // if(role !== 'owner' && role !== 'headmanager'){
-    //     c.status(401)
-    //     return c.json({msg:"Unauthorised "})
-    // }  
     const prisma = new PrismaClient({
         datasourceUrl : c.env?.DATABASE_URL
     }).$extends(withAccelerate());
     try {
         const wh = await prisma.warehouse.findMany();
-        // console.log('Warehouses:', wh);
         if (wh.length === 0) {
           console.log('No warehouses found.');
         }

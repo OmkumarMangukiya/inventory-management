@@ -17,18 +17,17 @@ const warehouse = app.post('/warehouse', async (c) => {
     const user = await auth(token);
     if (!user) return c.status(401);c.json({ error: 'Unauthorized' });
     const  { userId ,username,role} = user;
-    
-
     const prisma = new PrismaClient({
         datasourceUrl : c.env?.DATABASE_URL
     }).$extends(withAccelerate());
 
     if(role === 'headmanager' || role  === 'owner'){
         const warehouseId = c.req.header('warehouseId');
+        if(!warehouseId) return c.status(400);c.json({error:'warehouseId is required'});
         const products = await prisma.product.findMany({
             where:{
-                warehouseIds:{
-                    has:warehouseId
+                warehouseIds: {
+                    has: warehouseId
                 }
             }
         })
