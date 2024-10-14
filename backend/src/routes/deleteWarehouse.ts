@@ -22,29 +22,39 @@ const deleteWarehouse = app.post('warehouses/delete', async (c) => {
             c.status(400); 
             return c.json({ error: "warehouseId is required" });
         }
-        const deletedWarehouse = await prisma.warehouse.delete({
-            where: { id: warehouseId },
-        });
-        
-        
 
-        await prisma.user.updateMany({
+    const users = await prisma.user.findMany({
+        where: {
+            warehouseIds: {
+                has: warehouseId,
+            },
+        },
+    });
+
+
+    for (const user of users) {
+        const updatedWarehouseIds = user.warehouseIds.filter(id => id !== warehouseId);
+        await prisma.user.update({
             where: {
-                warehouseIds: {
-                    has: warehouseId, 
-                },
+                id: user.id,
             },
             data: {
-                warehouseIds: {
-                    set: []
-                },
+                warehouseIds: updatedWarehouseIds,
             },
         });
+    }
 
-        return c.json({ success: true, data: deletedWarehouse });
+   
+    await prisma.warehouse.delete({
+        where: {
+            id: warehouseId,
+        },
+    });
+    
+        return c.json({ success: true});
 
         
-
+    
 
 });
 

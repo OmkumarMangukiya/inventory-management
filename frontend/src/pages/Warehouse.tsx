@@ -59,7 +59,7 @@ const Warehouse = ()=>{
                     </div>
                 )
             })}
-            <Button name="Add Product" onClick={()=>navigate('addproduct')} ></Button>
+            <Button name="Add Product" onClick={()=>navigate('/addproduct')} ></Button>
         </div>
     )
 }   

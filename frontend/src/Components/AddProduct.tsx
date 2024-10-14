@@ -1,10 +1,22 @@
 import Input from "./Input";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
+import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 
 const AddProduct = () => {
-  const handleClick = () => {};
+  const handleClick = () => {
+    const wareshouseId = localStorage.getItem('warehouseId');
+    const token =  localStorage.getItem('token');
+    axios.post(`http://localhost:8787/addproduct`,{name,price,qauntity,date},{
+        headers: {
+            'warehouseId' :wareshouseId,
+            'token':token
+        }
+    }).then((response)=>{
+        console.log(response)
+    })
+  };
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);

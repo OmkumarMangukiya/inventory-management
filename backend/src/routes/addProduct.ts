@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { verify } from 'hono/utils/jwt/jwt';
 import { SignatureKey } from 'hono/utils/jwt/jws';
-import warehouse from './warehouse';
 
 const app = new Hono<{
     Bindings: {
@@ -11,43 +10,116 @@ const app = new Hono<{
         JWT_SECRET: SignatureKey
     }
 }>();
-const addProduct = app.post('/addproduct',async(c)=>{
-    const warehouseId = c.req.header('warehouseId')
-    
-    const prisma=  new PrismaClient({
+
+const addProduct = app.post('/addproduct', async (c) => {
+    const warehouseId = c.req.header('warehouseId');
+    if (!warehouseId) {
+        c.status(400);
+        return c.json({ error: 'Warehouse ID is required' });
+    }
+
+    const prisma = new PrismaClient({
         datasourceUrl: c.env?.DATABASE_URL
-    }).$extends(withAccelerate())
+    }).$extends(withAccelerate());
+
+    const token = c.req.header('token');
+    if (!token) {
+        c.status(401);
+        return c.json({ error: 'Unauthorized' });
+    }
+
+    const user = verify(token, c.env.JWT_SECRET);
+    if (!user) {
+        c.status(401);
+        return c.json({ error: 'Unauthorized' });
+    }
+
     const body = await c.req.json();
-    const productExist =await prisma.product.findFirst({
-        where:{
-            name:body.name
+    const { date } = body;
+
+    // Log the received expiry date
+    console.log('Received expiry date:', date);
+
+    const parsedExpiry = new Date(date);
+    if (isNaN(parsedExpiry.getTime())) {
+        c.status(400);
+        return c.json({ error: 'Invalid expiry date' });
+    }
+
+    const productExist = await prisma.product.findFirst({
+        where: {
+            name: body.name
         }
-    })
-    if(productExist){
-        if(!warehouseId) {c.status(400); return c.json({"error":"warehouse"})} 
-        const updatedWarehouseIds = [...productExist.warehouseIds,warehouseId]
-        const  product = await prisma.product.update({
+    });
+
+    if (productExist) {
+        const quan = productExist.qauntity + body.qauntity
+        if (!productExist.warehouseIds.includes(warehouseId)) {
+            const updatedWarehouseIds = [...productExist.warehouseIds, warehouseId];
+            const product = await prisma.product.update({
+                where: {
+                    id: productExist.id
+                },
+                data: {
+                    qauntity: quan,
+                    warehouseIds: updatedWarehouseIds
+                }
+            });
+            await prisma.warehouse.update({
+                where:{
+                    id:warehouseId
+                },
+                data:{
+                    totalstock:{
+                        increment:body.qauntity
+                    }
+                }
+            })
+            return c.json({ message: 'Product updated successfully', product });
+        } else {
+            const product = await prisma.product.update({
+                where: {
+                    id: productExist.id
+                },
+                data: {
+                    qauntity: quan
+                }
+            });
+            await prisma.warehouse.update({
+                where:{
+                    id:warehouseId
+                },
+                data:{
+                    totalstock:{
+                        increment:body.qauntity
+                    }
+                }
+            })
+            return c.json({ message: 'Warehouse ID already exists in the product', product });
+        }
+        
+    }  else {
+        const product = await prisma.product.create({
+            data: {
+                name: body.name,
+                price: body.price,
+                qauntity: body.qauntity,
+                expiry: parsedExpiry,
+                warehouseIds: [warehouseId]
+            }
+        });
+        await prisma.warehouse.update({
             where:{
-                id:productExist.id
+                id:warehouseId
             },
             data:{
-                qauntity:{
+                totalstock:{
                     increment:body.qauntity
-                },
-                warehouseIds: updatedWarehouseIds
+                }
             }
         })
+        return c.json({ message: 'Product added successfully', product });
     }
-    else{
-        
-        const product = await prisma.product.create({
-        data: {
-            name: body.name,
-            price: body.price,
-            qauntity: body.quantity,
-            expiry: new Date(body.expiry),
-            warehouseIds: warehouseId ? [warehouseId] : []
-        }
-    })}
-})
-export default addProduct
+});
+
+export default addProduct;
