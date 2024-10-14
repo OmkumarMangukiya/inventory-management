@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import {auth} from '../../../backend/src/routes/auth'
+import Button from "../Components/Button";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const Warehouse = ()=>{
     
     const [product, setProduct] = useState<product[]>([]);
@@ -13,6 +15,7 @@ const Warehouse = ()=>{
         expiry : Date,
         
     }
+    const navigate = useNavigate()
     useEffect(() => {
         const fetchData = async () => {
             const token = localStorage.getItem('token');
@@ -55,6 +58,7 @@ const Warehouse = ()=>{
                     </div>
                 )
             })}
+            <Button name="Add Product" onClick={()=>navigate('addproduct')} ></Button>
         </div>
     )
 }   
