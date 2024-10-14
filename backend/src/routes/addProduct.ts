@@ -11,7 +11,7 @@ const app = new Hono<{
         JWT_SECRET: SignatureKey
     }
 }>();
-const addProduct = app.post('addproduct',async(c)=>{
+const addProduct = app.post('/addproduct',async(c)=>{
     const warehouseId = c.req.header('warehouseId')
     
     const prisma=  new PrismaClient({
@@ -50,3 +50,4 @@ const addProduct = app.post('addproduct',async(c)=>{
         }
     })}
 })
+export default addProduct
