@@ -4,7 +4,7 @@ import Button from "../Components/Button";
 import { useNavigate } from "react-router-dom";
 export const Warehouses = () => {
   interface Warehouse {
-    id: number;
+    id: string;
     name: string;
     location: string;
     totalstock: number;
@@ -69,7 +69,10 @@ export const Warehouses = () => {
   if (error) {
     return <div>{error}</div>;
   }
-
+  const handleOpenWarehouse = (id:string) => {
+    localStorage.setItem('warehouseId',id)
+    navigate(`/warehouse`);
+  };
   return (
     <div className="container mx-auto mt-10 p-6 bg-gray-100 rounded-lg shadow-md">
     <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Warehouses</h1>
@@ -109,21 +112,31 @@ export const Warehouses = () => {
               Total Stock{" "}
               {sortConfig.key === "totalstock" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
             </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {filteredWarehouses.map((wh) => (
             <tr key={wh.id} className="hover:bg-gray-100 transition duration-200">
-              <td className="p-4 border-t border-gray-300">{wh.name}</td>
-              <td className="p-4 border-t border-gray-300">{wh.location}</td>
-              <td className="p-4 border-t border-gray-300">{wh.totalstock}</td>
+              <td className="px-2 py-1.5 border-t border-gray-300">{wh.name}</td>
+              <td className="px-2 py-1.5 border-t border-gray-300">{wh.location}</td>
+              <td className="px-2 py-1.5 border-t border-gray-300">{wh.totalstock}</td>
+              <td className="px-2 py-1.5 border-t border-gray-300">
+                <button
+                  onClick={() => handleOpenWarehouse(wh.id)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+                >
+                  Open
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   
-    <div className="mt-6 text-right">
+    <div className="mt-6 ml-[1250px]">
+      
       <Button
         name="Add warehouse"
         onClick={() => navigate("/addwarehouse")}

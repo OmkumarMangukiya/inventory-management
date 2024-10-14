@@ -30,6 +30,7 @@ model product {
   qauntity  Int
   expiry    DateTime
   createdAt DateTime @default(now())
+  warehouseIds String[] @default([])
 }
 
 model warehouse {
