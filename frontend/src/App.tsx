@@ -6,6 +6,7 @@ import { AddWarehouse } from './pages/AddWarehouse'
 import { BrowserRouter,Route,Routes } from 'react-router-dom'
 import Warehouse  from './pages/Warehouse'
 import AddProduct from './Components/AddProduct'
+import WarehouseSales from './pages/WarehouseSales'
 function App() {
 
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path='/addwarehouse' Component={AddWarehouse}/>
             <Route path='/warehouse' Component={Warehouse} />
             <Route path='/addproduct' Component={AddProduct}></Route>
+            <Route path='/warehousesales' Component={WarehouseSales}></Route>
             </Routes>
             </BrowserRouter>
     </>
