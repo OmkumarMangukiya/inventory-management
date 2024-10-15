@@ -4,12 +4,18 @@ import { Link } from "react-router-dom";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isActive, setIsActive] = useState(false); // State for active background color
+
+  const handleToggle = () => {
+    setIsCollapsed(!isCollapsed);
+    setIsActive(true); // Change the color when the sidebar is clicked
+  };
 
   return (
     <MagicMotion>
       <aside
         style={{
-          backgroundColor: "black",
+          backgroundColor: isCollapsed ?  "rgb(0, 0, 0)" : "#1F2833" , // Change color based on active state
           padding: "1rem",
           margin: 0,
           borderRadius: "0.65rem",
@@ -20,6 +26,7 @@ export default function Sidebar() {
           gap: "1rem",
           overflow: "hidden",
           height: "100vh", // Full height of the viewport
+          transition: "background-color 0.3s", // Smooth transition for color change
         }}
       >
         <div
@@ -31,10 +38,18 @@ export default function Sidebar() {
           }}
         >
           {/* Only show the title when the sidebar is expanded */}
-          {!isCollapsed && <h4 style={{ margin: 0, color: "white" }}>Navigation</h4>}
+          {!isCollapsed && (
+            <h4 style={{ margin: 0, color: "#C5C6C7" }}>Navigation</h4>
+          )}
           <button
-            style={{ cursor: "pointer", padding: 0, border: 0, background: "none", color: "white" }} // Ensure icon color is white
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            style={{
+              cursor: "pointer",
+              padding: 0,
+              border: 0,
+              background: "none",
+              color: "#C5C6C7", // Ensure icon color is light
+            }}
+            onClick={handleToggle} // Call handleToggle to manage collapse and color change
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isCollapsed ? (
@@ -53,15 +68,38 @@ export default function Sidebar() {
 
         {/* Show the list of links only when the sidebar is not collapsed */}
         {!isCollapsed && (
-          <ul style={{ display: "flex", flexDirection: "column", gap: "1rem", margin: 0, padding: 0 }}>
+          <ul
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              margin: 0,
+              padding: 0,
+            }}
+          >
             <li>
-              <Link to="/warehouses" style={{ color: "white", textDecoration: "none" }}>Warehouses</Link>
+              <Link
+                to="/warehouses"
+                style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
+              >
+                Warehouses
+              </Link>
             </li>
             <li>
-              <Link to="/addproduct" style={{ color: "white", textDecoration: "none" }}>Add Product</Link>
+              <Link
+                to="/addproduct"
+                style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
+              >
+                Add Product
+              </Link>
             </li>
             <li>
-              <Link to="/warehousesales" style={{ color: "white", textDecoration: "none" }}>Sell Product</Link>
+              <Link
+                to="/warehousesales"
+                style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
+              >
+                Sell Product
+              </Link>
             </li>
           </ul>
         )}
