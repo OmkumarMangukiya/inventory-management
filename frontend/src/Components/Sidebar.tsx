@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MagicMotion } from "react-magic-motion";
 import { Link } from "react-router-dom";
 
@@ -9,6 +9,23 @@ export default function Sidebar() {
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
     setIsActive(true); // Change the color when the sidebar is clicked
+  };
+
+  // Load the sidebar state from local storage on component mount
+  useEffect(() => {
+    const storedState = localStorage.getItem("sidebarCollapsed");
+    if (storedState) {
+      setIsCollapsed(JSON.parse(storedState));
+    }
+  }, []);
+
+  // Save the sidebar state to local storage when it changes
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => {
+      const newState = !prev;
+      localStorage.setItem("sidebarCollapsed", JSON.stringify(newState)); // Store the new state in local storage
+      return newState;
+    });
   };
 
   return (
@@ -42,14 +59,10 @@ export default function Sidebar() {
             <h4 style={{ margin: 0, color: "#C5C6C7" }}>Navigation</h4>
           )}
           <button
-            style={{
-              cursor: "pointer",
-              padding: 0,
-              border: 0,
-              background: "none",
-              color: "#C5C6C7", // Ensure icon color is light
-            }}
-            onClick={handleToggle} // Call handleToggle to manage collapse and color change
+
+            style={{ cursor: "pointer", padding: 0, border: 0, background: "none", color: "white" }} // Ensure icon color is white
+            onClick={toggleSidebar}
+
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isCollapsed ? (

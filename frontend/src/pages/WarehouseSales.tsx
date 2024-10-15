@@ -36,43 +36,35 @@ const WarehouseSales = () => {
             setError("Failed to submit sales. Please try again.");
         }
     };
-
     return (
-        <div className="bg-[#0B0C10] min-h-screen flex items-center justify-center">
-            <div className="bg-[#1F2833] p-8 rounded-lg shadow-lg w-full max-w-md">
-                <h2 className="text-3xl font-bold text-center text-[#C5C6C7] mb-6">Warehouse Sales</h2>
-                
-                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-                
-                <div className="mb-4">
-                    <label className="block text-[#C5C6C7] mb-2">Product Name:</label>
-                    <Input
-                        type="text"
-                        className="w-full p-3 border border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-                        onChange={(e) => setProductName(e.target.value)}
-                        placeholder="Enter product name"
-                    />
-                </div>
 
-                <div className="mb-6">
-                    <label className="block text-[#C5C6C7] mb-2">Sold Quantity:</label>
-                    <Input
-                        type="number"
-                        className="w-full p-3 border border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSoldQuantity(e.target.value)}
-                        placeholder="Enter sold quantity"
-                    />
-                </div>
-
-                <div className="text-center">
-                    <Button 
-                        onClick={handleSales} 
-                        name="Save" 
-                        className="bg-[#45A29E] text-[#0B0C10] px-4 py-2 rounded-lg hover:bg-[#66FCF1] transition duration-200"
-                    />
-                </div>
+        <div className="flex items-center justify-center min-h-screen bg-black-100">
+        <div className="w-96 h-96 p-6 bg-white rounded-lg shadow-md flex flex-col justify-center items-center">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">Warehouse Sales</h2>
+            {error && <p style={{ color: "red" }}>{error}</p>} 
+            <div className="mb-4 w-full">
+                <label className="block mb-2 text-gray-700">Product Name:</label>
+                <Input
+                    type="text"
+                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder="Enter product name"
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+                />
             </div>
+            <div className="mb-4 w-full">
+                <label className="block mb-2 text-gray-700">Sold Quantity:</label>
+                <Input
+                    type="number"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSoldQuantity(e.target.value)}
+                    placeholder="Enter sold quantity"
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+                />
+            </div>
+    
+            <Button onClick={handleSales} name="Save" className="bg-rose-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200" /> 
+
         </div>
+    </div>
     );
 };
 

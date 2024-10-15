@@ -91,7 +91,9 @@ const Warehouse = () => {
             <div className="mt-10 text-right space-x-4">
                 <Button
                     onClick={() => navigate('/addproduct')}
-                    className="bg-gradient-to-r from-[#45A29E] to-[#66FCF1] text-white border-2 border-transparent py-2 px-4 rounded-lg hover:from-[#66FCF1] hover:to-[#45A29E] transition duration-200 shadow-md relative overflow-hidden group"
+
+                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
+
                 >
                     <span className="relative z-10">Add Product</span>
                 </Button>
