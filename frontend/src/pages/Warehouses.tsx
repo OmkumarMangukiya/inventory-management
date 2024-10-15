@@ -94,7 +94,9 @@ export const Warehouses = () => {
   }
 
   return (
-    <div className="container mx-auto mt-10 p-6 bg-gray-100 rounded-lg shadow-md">
+    <div className="bg-gradient-to-r from-gray-950 to-black relative min-h-screen ">
+      <div className="p-10"></div>
+    <div className="container mx-auto  p-6 bg-gray-100 rounded-lg shadow-md ">
       <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Warehouses</h1>
 
       <div className="mb-4">
@@ -144,13 +146,13 @@ export const Warehouses = () => {
                 <td className="px-2 py-1.5 border-t border-gray-300">
                   <button
                     onClick={() => handleOpenWarehouse(wh.id)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+                    className=" text-white bg-black px-3 py-1 rounded-lg border-2 border-black  transition duration-200 "
                   >
                     Open
                   </button>
                   <button
                     onClick={() => handleRemoveWarehouse(wh.id)}
-                    className="bg-red-500 text-white ml-2 px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+                    className="ml-2 text-black px-3 py-1 rounded-lg border-2 border-black  transition duration-200"
                   >
                     Remove
                   </button>
@@ -164,6 +166,7 @@ export const Warehouses = () => {
       <div className="mt-6 ml-[1250px]">
         <Button name="Add Warehouse" onClick={() => navigate("/addwarehouse")} />
       </div>
+    </div>
     </div>
   );
 };

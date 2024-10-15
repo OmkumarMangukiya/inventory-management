@@ -45,9 +45,11 @@ export const Signup = () => {
     })
   };
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-gray-800 to-gray-900 relative">
-        <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl">
-            <div className="text-center text-2xl font-semibold mb-6 text-gray-700">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-gray-950 to-black relative ">
+
+        
+        <div className="w-full max-w-sm p-8 bg-gray-100 rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:shadow-gray-800">
+            <div className="text-center text-2xl font-semibold mb-6 text-black">
                 Sign Up Page
             </div>
             <div className="mb-6">
@@ -72,30 +74,33 @@ export const Signup = () => {
                 />
             </div>
             <div className="mb-6">
-                <label htmlFor="role" className="block mb-2 text-sm font-medium text-gray-700">
+                <label htmlFor="role" className="block mb-2 text-md font-medium text-black">
                     Role
                 </label>
                 <select
                     id="role"
                     value={role}
                     onChange={(e) => setrole(e.target.value)}
-                    className="w-full px-4 py-2 text-gray-700 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
+                    className="w-full px-4 py-2 text-gray-900 font-medium border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-black transition-all duration-300"
                 >
-                    <option value="" disabled>
+                    <option value="" disabled className="text-gray-600">
                         Select a role
                     </option>
-                    <option value="manager">Manager</option>
+                    <option value="manager" className="">Manager</option>
                     <option value="headmanager">Head Manager</option>
                     <option value="owner">Owner</option>
                 </select>
             </div>
-            <div className="mb-4">
-                <Button name="Sign Up" onClick={handleSignIn} />
+            <div className="mb-4 flex justify-end">
+                <Button name="Sign Up" onClick={handleSignIn} className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-gray-900 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group">
+                <span className="relative z-10">Sign up</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
+                    </Button>
             </div>
             <div className="flex justify-center text-sm">
-                <span className="text-gray-600 mr-2">Have an account?</span>
+                <span className="text-gray-950 mr-2">Have an account?</span>
                 <button
-                    className="text-black font-medium hover:text-blue-500 hover:underline transition-colors duration-300"
+                    className="text-gray-900 font-medium hover:font-semibold hover:underline transition-colors duration-300"
                     onClick={() => {
                         navigate("/");
                     }}
