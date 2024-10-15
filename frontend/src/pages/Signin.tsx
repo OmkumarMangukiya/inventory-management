@@ -75,10 +75,10 @@ export const Signin = () => {
                 </div>
                 <div className="flex justify-center text-sm">
                     <span className="text-gray-600 mr-2">Don't have an account?</span>
-                    <button
-                        className="text-black font-medium hover:text-blue-500 hover:underline transition-colors duration-300"
+                    <button 
                         onClick={() => navigate('/signup')}
                     >
+                    
                         Signup Now
                     </button>
                 </div>

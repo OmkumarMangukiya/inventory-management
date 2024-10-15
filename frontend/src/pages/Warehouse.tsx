@@ -91,10 +91,10 @@ const Warehouse = () => {
             <div className="mt-10 text-right space-x-4">
                 <Button
                     onClick={() => navigate('/addproduct')}
-                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-gray-800 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
+                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-gray-900 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
                 >
                     <span className="relative z-10">Add Product</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
+                    <div className="inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
                 </Button>
                 <Button
                     onClick={() => navigate('/warehouseSales')}
@@ -103,6 +103,7 @@ const Warehouse = () => {
                     <span className="relative z-10">Sell</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
                 </Button>
+                
             </div>
         </div>
     );
