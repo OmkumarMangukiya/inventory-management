@@ -3,8 +3,10 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
+  const navigate=useNavigate()
   const handleClick = () => {
     const wareshouseId = localStorage.getItem('warehouseId');
     const token =  localStorage.getItem('token');
@@ -16,8 +18,9 @@ const AddProduct = () => {
     }).then((response)=>{
         console.log(response)
     })
+    navigate('/warehouse')
   };
-
+  
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [qauntity, setQauntity] = useState(0);

@@ -2,12 +2,12 @@ import { useState } from "react";
 import axios from "axios";
 import Button from "../Components/Button"; 
 import { useNavigate } from "react-router-dom";
-
+import Input from "../Components/Input";
 const WarehouseSales = () => {
     const [productName, setProductName] = useState<string>("");
     const [soldQuantity, setSoldQuantity] = useState<number | string>(""); 
     const [error, setError] = useState<string | null>(null); 
-
+    const navigate = useNavigate();
     const handleSales = async () => {
         try {
             const warehouseId = localStorage.getItem('warehouseId');
@@ -32,6 +32,7 @@ const WarehouseSales = () => {
             });
             console.log("hi4");
             setError(null); 
+            navigate('/warehouse')
 
         } catch (error) {
             console.error("Error in submitting sales:", error);
@@ -45,9 +46,9 @@ const WarehouseSales = () => {
             {error && <p style={{ color: "red" }}>{error}</p>} 
             <div>
                 <label>Product Name:</label>
-                <input
+                <Input
                     type="text"
-                    value={productName}
+                    
                     onChange={(e) => setProductName(e.target.value)}
                     placeholder="Enter product name"
                 />
@@ -55,10 +56,10 @@ const WarehouseSales = () => {
 
             <div>
                 <label>Sold Quantity:</label>
-                <input
+                <Input
                     type="number"
-                    value={soldQuantity}
-                    onChange={(e) => setSoldQuantity(e.target.value)}
+                    
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSoldQuantity(e.target.value)}
                     placeholder="Enter sold quantity"
                 />
             </div>
