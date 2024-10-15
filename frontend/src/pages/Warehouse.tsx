@@ -70,9 +70,7 @@ const Warehouse = () => {
                             <tr key={p.id} className="bg-white hover:bg-gray-100 transition duration-200">
                                 <td className="px-6 py-4 text-green-600 text-lg font-medium">{p.name}</td>
                                 <td className="px-6 py-4 text-blue-500 text-lg">₹{p.price.toFixed(2)}</td>
-                                <td className={`px-6 py-4 text-lg font-medium`}>
-                                    {p.qauntity} units
-                                </td>
+                                <td className={`px-6 py-4 text-lg font-medium`}>{p.qauntity} units</td>
                                 <td className="px-6 py-4 text-gray-500 text-lg">
                                     {new Date(p.expiry).toLocaleDateString("en-GB", {
                                         day: '2-digit',
@@ -90,10 +88,18 @@ const Warehouse = () => {
             )}
 
             <div className="mt-10 text-right">
+                {/* Button to Add Product */}
                 <Button
                     name="Add Product"
                     onClick={() => navigate('/addproduct')}
                     className="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition duration-200"
+                />
+
+                {/* New Sale Button */}
+                <Button
+                    name="Sale"
+                    onClick={() => navigate('/warehouseSales')}
+                    className="ml-4 bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition duration-200"
                 />
             </div>
         </div>
