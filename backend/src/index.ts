@@ -7,6 +7,7 @@ import addWareshouse from './routes/addWarehouse'
 import warehouse  from './routes/warehouse'
 import deleteWarehouse from './routes/deleteWarehouse'
 import addProduct  from './routes/addProduct'
+import warehouseSales from './routes/warehouseSales'
 const app = new Hono<{
     Bindings:{
         DATABASE_URL:String
@@ -21,4 +22,5 @@ app.route('/',addWareshouse)
 app.route('/',warehouse)
 app.route('/',deleteWarehouse)
 app.route('/',addProduct)
+app.route('/',warehouseSales)
 export default app
