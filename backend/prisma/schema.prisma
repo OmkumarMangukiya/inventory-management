@@ -25,7 +25,7 @@ model user {
 
 model product {
   id        String   @id @default(cuid())
-  name      String
+  name      String   @unique
   price     Int
   qauntity  Int
   expiry    DateTime
