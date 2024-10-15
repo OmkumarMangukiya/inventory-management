@@ -36,14 +36,30 @@ const AddProduct = () => {
         <Input
           type="number"
           placeholder="Price"
-          onChange={(e) => setPrice(Number(e.target.value))}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            if (value >= 0) {
+              setPrice(value);
+            }
+            else{
+              alert("Quantity must be greater than 0")
+            }
+          }}
         />
       </div>
       <div className="mb-4">
         <Input
           type="number"
           placeholder="Quantity"
-          onChange={(e) => setQauntity(Number(e.target.value))}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            if (value >= 0) {
+              setQauntity(value);
+            }
+            else{
+              alert("Quantity must be greater than 0")
+            }
+          }}
         />
       </div>
       <div className="mb-4">
@@ -57,10 +73,7 @@ const AddProduct = () => {
           className="border border-gray-300 p-2 rounded"
         />
       </div>
-      <button
-        onClick={handleClick}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
-      >
+      <button onClick={handleClick} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
         Add Product
       </button>
     </div>
