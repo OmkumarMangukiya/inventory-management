@@ -80,7 +80,7 @@ const AddProduct = () => {
       <div className="flex justify-end">
       <Button
                     onClick={handleClick}
-                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
+                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
                 >
                     <span className="relative z-10">Add Product</span>
                     <div className="inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
