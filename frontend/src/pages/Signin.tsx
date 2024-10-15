@@ -3,11 +3,34 @@ import { useState } from "react";
 import Button from "../Components/Button.tsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../../backend/src/routes/auth.ts";
 export const Signin = () => {
     // const [email,setEmail]=useState("");
     const navigate = useNavigate();
     const [password,setPassword]=useState("");
     const [username,setUsername]=useState("");
+    const token = localStorage.getItem('token')
+    if(token){
+        const decoded = auth(token);
+        if (!decoded) {
+            console.log("token is not valid")
+            return;
+        }
+       
+
+        axios.post(`http://localhost:8787/users/role`,{},{
+            headers:{
+                role : localStorage.getItem('role')
+            }
+        })
+        .then((response:{data:{headTo:string}})=>{
+            console.log(response.data.headTo)
+            navigate(`/${response.data.headTo}`)
+        })
+        .catch((error:Error)=>{
+            console.error("There was an error getting the role!", error);
+        })
+    }
     const handleSignIn = () => {
         console.log("run");
         // const apiUrl = import.meta.env.REACT_APP_API_URL;

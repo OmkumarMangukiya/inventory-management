@@ -44,6 +44,24 @@ const deleteWarehouse = app.post('warehouses/delete', async (c) => {
         });
     }
 
+
+   const products = await prisma.product.findMany({
+        where: {
+            warehouseIds: {
+                has: warehouseId,
+            },
+        },
+    });
+
+    for (const product of products) {
+        await prisma.product.delete({
+            where: {
+                id: product.id,
+            },
+        });
+    }
+
+   
    
     await prisma.warehouse.delete({
         where: {

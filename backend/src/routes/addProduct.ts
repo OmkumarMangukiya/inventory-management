@@ -48,35 +48,17 @@ const addProduct = app.post('/addproduct', async (c) => {
 
     const productExist = await prisma.product.findFirst({
         where: {
-            name: body.name
+            name: body.name,
+            warehouseIds:{
+                has :warehouseId
+            }
         }
     });
 
     if (productExist) {
         const quan = productExist.qauntity + body.qauntity
-        if (!productExist.warehouseIds.includes(warehouseId)) {
-            const updatedWarehouseIds = [...productExist.warehouseIds, warehouseId];
-            const product = await prisma.product.update({
-                where: {
-                    id: productExist.id
-                },
-                data: {
-                    qauntity: quan,
-                    warehouseIds: updatedWarehouseIds
-                }
-            });
-            await prisma.warehouse.update({
-                where:{
-                    id:warehouseId
-                },
-                data:{
-                    totalstock:{
-                        increment:body.qauntity
-                    }
-                }
-            })
-            return c.json({ message: 'Product updated successfully', product });
-        } else {
+        
+       
             const product = await prisma.product.update({
                 where: {
                     id: productExist.id
@@ -95,8 +77,8 @@ const addProduct = app.post('/addproduct', async (c) => {
                     }
                 }
             })
-            return c.json({ message: 'Warehouse ID already exists in the product', product });
-        }
+            return c.json({ message: 'Warehouse ID already exists in the product and updated', product });
+        
         
     }  else {
         const product = await prisma.product.create({
