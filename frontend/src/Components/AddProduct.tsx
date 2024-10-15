@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
-
+import Button from "./Button";
 const AddProduct = () => {
   const navigate = useNavigate()
   const handleClick = () => {
@@ -26,7 +26,8 @@ const AddProduct = () => {
   const [qauntity, setQauntity] = useState(0);
   const [date, setDate] = useState<Date | null>(new Date());
   return (
-    <div className="p-4">
+    <div className="flex justify-center pt-10">
+    <div className="p-7 w-full max-w-sm bg-white rounded-lg mt-16 ">
       <h1 className="text-2xl font-bold mb-4">Add Product</h1>
       <div className="mb-4">
         <Input
@@ -73,12 +74,19 @@ const AddProduct = () => {
           selected={date}
           onChange={(date) => setDate(date)}
           dateFormat="dd/MM/yyyy"
-          className="border border-gray-300 p-2 rounded"
+          className="border-2 border-black rounded-md  py-1 px-4  max-w-32 "
         />
       </div>
-      <button onClick={handleClick} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
-        Add Product
-      </button>
+      <div className="flex justify-end">
+      <Button
+                    onClick={handleClick}
+                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
+                >
+                    <span className="relative z-10">Add Product</span>
+                    <div className="inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
+                </Button>
+                </div>
+    </div>
     </div>
   );
   

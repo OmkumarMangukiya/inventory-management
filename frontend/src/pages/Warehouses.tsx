@@ -152,7 +152,7 @@ export const Warehouses = () => {
                   </button>
                   <button
                     onClick={() => handleRemoveWarehouse(wh.id)}
-                    className="ml-2 text-black px-3 py-1 rounded-lg border-2 border-black  transition duration-200"
+                    className="ml-2 text-black px-3 py-1 rounded-lg border-1 border-black  transition duration-200 bg-rose-500"
                   >
                     Remove
                   </button>
