@@ -162,7 +162,6 @@ export const Warehouses = () => {
           </tbody>
         </table>
       </div>
-
       <div className="mt-6 ml-[1250px]">
         <Button name="Add Warehouse" onClick={() => navigate("/addwarehouse")} />
       </div>
