@@ -7,7 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Warehouse from './pages/Warehouse';
 import AddProduct from './Components/AddProduct';
 import WarehouseSales from './pages/WarehouseSales';
-import Sidebar from './Components/sidebar';
+import Sidebar from './Components/Sidebar';
 
 function App() {
   return (
