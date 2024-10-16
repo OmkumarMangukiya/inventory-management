@@ -36,6 +36,7 @@ const WarehouseSales = () => {
             setError("Failed to submit sales. Please try again.");
         }
     };
+    
     return (
 
         <div className="flex items-center justify-center min-h-screen bg-black-100">

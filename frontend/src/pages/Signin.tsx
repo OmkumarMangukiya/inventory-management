@@ -99,7 +99,7 @@ export const Signin = () => {
                 <Button 
                     name="Sign in" 
                     onClick={handleSignIn} 
-                    className="w-full bg-[#45A29E] hover:bg-[#3B8885] text-white font-semibold p-4 rounded-lg transition duration-300"
+                    className="w-full bg-[#45A29E] hover:bg-[#3B8885] text-black font-semibold p-4 rounded-lg transition duration-300"
                 />
 
                 <div className="mt-6 text-center text-[#C5C6C7]">

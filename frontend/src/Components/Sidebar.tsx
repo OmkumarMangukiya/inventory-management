@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
 import { MagicMotion } from "react-magic-motion";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isActive, setIsActive] = useState(false); // State for active background color
-
-  const handleToggle = () => {
-    setIsCollapsed(!isCollapsed);
-    setIsActive(true); // Change the color when the sidebar is clicked
-  };
 
   // Load the sidebar state from local storage on component mount
   useEffect(() => {
@@ -27,12 +22,12 @@ export default function Sidebar() {
       return newState;
     });
   };
-
+  const navigate = useNavigate();
   return (
     <MagicMotion>
       <aside
         style={{
-          backgroundColor: isCollapsed ?  "rgb(0, 0, 0)" : "#1F2833" , // Change color based on active state
+          backgroundColor: isCollapsed ? "rgb(0, 0, 0)" : "#1F2833",
           padding: "1rem",
           margin: 0,
           borderRadius: "0.65rem",
@@ -43,7 +38,7 @@ export default function Sidebar() {
           gap: "1rem",
           overflow: "hidden",
           height: "100vh", // Full height of the viewport
-          transition: "background-color 0.3s", // Smooth transition for color change
+          transition: "background-color 0.3s",
         }}
       >
         <div
@@ -59,10 +54,14 @@ export default function Sidebar() {
             <h4 style={{ margin: 0, color: "#C5C6C7" }}>Navigation</h4>
           )}
           <button
-
-            style={{ cursor: "pointer", padding: 0, border: 0, background: "none", color: "white" }} // Ensure icon color is white
+            style={{
+              cursor: "pointer",
+              padding: 0,
+              border: 0,
+              background: "none",
+              color: "white",
+            }}
             onClick={toggleSidebar}
-
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isCollapsed ? (
@@ -79,43 +78,76 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Show the list of links only when the sidebar is not collapsed */}
-        {!isCollapsed && (
-          <ul
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-              margin: 0,
-              padding: 0,
+        {/* Wrap the list of links in a flex-grow container */}
+        <div style={{ flexGrow: 1 }}>
+          {!isCollapsed && (
+            <ul
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              <li>
+                <Link
+                  to="/warehouses"
+                  style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
+                >
+                  Warehouses
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/addproduct"
+                  style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
+                >
+                  Add Product
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/warehousesales"
+                  style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
+                >
+                  Sell Product
+                </Link>
+              </li>
+            </ul>
+          )}
+        </div>
+
+        {/* Place the Logout button at the bottom and hide it when collapsed */}
+        <div style={{ paddingTop: "1rem", visibility: isCollapsed ? "hidden" : "visible" }}>
+          <button
+            className="sexy-logout-btn"
+            onClick={()=>{
+              localStorage.clear();
+              navigate('/');
             }}
+            style={{
+              background:
+                "linear-gradient(135deg, #ff416c, #ff4b2b)", // Sexy gradient background
+              color: "#fff",
+              padding: "0.75rem 1.5rem",
+              fontSize: "1rem",
+              fontWeight: "bold",
+              border: "none",
+              borderRadius: "1.5rem", // Rounded corners
+              cursor: "pointer",
+              transition: "opacity 0.3s, transform 0.3s, box-shadow 0.3s ease", // Smooth transition for visibility and hover effects
+              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)", // Subtle box shadow for depth
+              width: "100%", // Full width when sidebar is expanded
+              textAlign: "center",
+              transform: isCollapsed ? "scale(0)" : "scale(1)", // Scale to 0 when collapsed
+              opacity: isCollapsed ? 0 : 1, // Make the button transparent when collapsed
+            }}
+            
           >
-            <li>
-              <Link
-                to="/warehouses"
-                style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
-              >
-                Warehouses
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/addproduct"
-                style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
-              >
-                Add Product
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/warehousesales"
-                style={{ color: "#C5C6C7", textDecoration: "none" }} // Use light text color
-              >
-                Sell Product
-              </Link>
-            </li>
-          </ul>
-        )}
+            Logout
+          </button>
+        </div>
       </aside>
     </MagicMotion>
   );
