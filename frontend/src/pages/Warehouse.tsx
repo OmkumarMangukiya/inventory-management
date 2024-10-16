@@ -48,7 +48,7 @@ const Warehouse = () => {
         };
         fetchData();
     }, []);
-
+    
     return (
         <div className="p-10 max-w-5xl mx-auto bg-[#1F2833] shadow-lg rounded-lg mt-10 border border-[#C5C6C7]">
             <h1 className="text-4xl font-bold mb-8 text-center text-[#C5C6C7]">Warehouse Products</h1>
