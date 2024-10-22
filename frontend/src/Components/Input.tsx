@@ -6,6 +6,7 @@ interface InputProps {
     placeholder: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     className?: string;
+    required?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({ type, placeholder, onChange, className }) => {
@@ -34,6 +35,7 @@ const Input: React.FC<InputProps> = ({ type, placeholder, onChange, className })
         <input
             ref={inputRef}
             type={type}
+            placeholder={""}
             onChange={(e) => {
                 onChange(e);
                 if (e.target.value !== '') {

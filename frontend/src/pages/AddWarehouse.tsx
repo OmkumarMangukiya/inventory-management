@@ -1,16 +1,17 @@
-import { useState } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import { AlertCircle } from "lucide-react"
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AlertCircle } from "lucide-react";
+import Input from '../Components/Input';
 
 export default function AddWarehouse() {
-  const [name, setName] = useState("")
-  const [location, setLocation] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleClick = async () => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     try {
       const response = await axios.post(
         "http://localhost:8787/addwarehouse",
@@ -20,18 +21,18 @@ export default function AddWarehouse() {
             token: token,
           },
         }
-      )
-      console.log(response.data)
-      navigate("/warehouses")
+      );
+      console.log(response.data);
+      navigate("/warehouses");
     } catch (error) {
-      console.error("Error adding warehouse:", error)
-      setError("Failed to add warehouse. Please try again.")
+      console.error("Error adding warehouse:", error);
+      setError("Failed to add warehouse. Please try again.");
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white rounded-lg px-7 pt-9 pb-16 shadow-xl ">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Add New Warehouse</h2>
         </div>
@@ -43,36 +44,27 @@ export default function AddWarehouse() {
             </div>
           </div>
         )}
+        
         <form className="mt-8 space-y-6" onSubmit={(e) => e.preventDefault()}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="warehouse-name" className="sr-only">
-                Warehouse Name
-              </label>
-              <input
-                id="warehouse-name"
-                name="warehouse-name"
+          <div className="rounded-md shadow-sm -space-y-px py-2">
+            <div className="py-5">
+              {/* Replace with custom Input component */}
+              <Input
                 type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                name="warehouse-name"
                 placeholder="Warehouse Name"
-                value={name}
                 onChange={(e) => setName(e.target.value)}
+                className="rounded-t-md py-2"
               />
             </div>
             <div>
-              <label htmlFor="warehouse-location" className="sr-only">
-                Warehouse Location
-              </label>
-              <input
-                id="warehouse-location"
-                name="warehouse-location"
+              {/* Replace with custom Input component */}
+              <Input
                 type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                name="warehouse-location"
                 placeholder="Warehouse Location"
-                value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                className="rounded-b-md"
               />
             </div>
           </div>
@@ -87,7 +79,8 @@ export default function AddWarehouse() {
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
-  )
+
+  );
 }
