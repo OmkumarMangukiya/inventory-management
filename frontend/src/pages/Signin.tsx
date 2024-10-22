@@ -92,7 +92,7 @@ export default function Signin() {
                                 type="text"
                                 placeholder="Username"
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 sm:text-sm"
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-400 focus:border-none sm:text-sm"
                             />
                         </div>
                         <div className="relative">
@@ -100,7 +100,7 @@ export default function Signin() {
                                 type="password"
                                 placeholder="Password"
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 sm:text-sm"
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-400 focus:border-none sm:text-sm"
                             />
                         </div>
                     </div>

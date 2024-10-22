@@ -2,7 +2,8 @@ import { useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { AlertCircle } from "lucide-react"
-
+import Button from "../Components/Button"
+import Input from "../Components/Input"
 export default function Signup() {
   const navigate = useNavigate()
   const [password, setPassword] = useState("")
@@ -50,88 +51,60 @@ export default function Signup() {
             </div>
           </div>
         )}
-        <form className="mt-8 space-y-6" onSubmit={(e) => e.preventDefault()}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="role" className="sr-only">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="">Select a role</option>
-                <option value="manager">Manager</option>
-                <option value="headmanager">Head Manager</option>
-                <option value="owner">Owner</option>
-              </select>
-            </div>
-          
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              onClick={handleSignUp}
-            >
-              Sign Up
-            </button>
-          </div>
-        </form>
-        <div className="text-center">
+        <div className="mt-8 space-y-6">
+                    <div className="rounded-md shadow-sm -space-y-px">
+                        <div className="relative pb-4">
+                            <Input
+                                type="email"
+                                placeholder="Email address"
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-400 focus:border-none sm:text-sm"
+                            />
+                        </div>
+                        <div className="relative pb-4">
+                            <Input
+                                type="text"
+                                placeholder="Username"
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-blue-400 focus:border-none sm:text-sm"
+                            />
+                        </div>
+                        <div className="relative pb-4">
+                            <Input
+                                type="password"
+                                placeholder="Password"
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-blue-400 focus:border-none sm:text-sm"
+                            />
+                        </div>
+                        <div className="relative">
+                            <label htmlFor="role" className="sr-only">
+                                Role
+                            </label>
+                            <select
+                                id="role"
+                                name="role"
+                                required
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-blue-400 focus:border-none sm:text-md"
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                            >
+                                <option value="" disabled >Select a role</option>
+                                <option value="manager">Manager</option>
+                                <option value="headmanager">Head Manager</option>
+                                <option value="owner">Owner</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <Button
+                            name="Sign Up"
+                            onClick={handleSignUp}
+                            className="w-full bg-blue-600 text-white border-none hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+                <div className="text-center">
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{" "}
             <button onClick={() => navigate("/")} className="font-medium text-blue-600 hover:text-blue-500">
