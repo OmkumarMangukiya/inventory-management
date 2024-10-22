@@ -5,6 +5,7 @@ import { auth } from "../../../backend/src/routes/auth"
 import { AlertCircle } from "lucide-react"
 import Input from "../Components/Input"
 import Button from "../Components/Button"
+import image1 from "../assets/img1.jpg"
 export default function Signin() {
   const navigate = useNavigate()
   const [password, setPassword] = useState("")
@@ -72,10 +73,14 @@ export default function Signin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+    <div className="h-[108px] flex">
+    <div className="w-[1380px] h-screen hidden xl:block">
+                <img src={image1} alt="Sign in" className="w-full h-full object-cover" />
+            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 w-[540px] py-12 px-8 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 px-10">
+        <div className="">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 ">Sign in to your account</h2>
         </div>
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4">
@@ -121,6 +126,7 @@ export default function Signin() {
                     </p>
                 </div>
             </div>
+               </div>
                </div>
   )
 }
