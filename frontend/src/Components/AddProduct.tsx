@@ -15,7 +15,9 @@ export default function AddProduct() {
 
   const handleClick = async () => {
     const warehouseId = localStorage.getItem("warehouseId")
+    
     const token = localStorage.getItem("token")
+    
     try {
       const response = await axios.post(
         `http://localhost:8787/addproduct`,
