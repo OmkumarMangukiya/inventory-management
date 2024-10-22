@@ -1,156 +1,163 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import Button from "../Components/Button";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import { PlusIcon, SearchIcon } from "lucide-react"
 
-export const Warehouses = () => {
-  interface Warehouse {
-    id: string;
-    name: string;
-    location: string;
-    totalstock: number;
-  }
+interface Warehouse {
+  id: string
+  name: string
+  location: string
+  totalstock: number
+}
 
-  const navigate = useNavigate();
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [filterText, setFilterText] = useState<string>("");
+const  Warehouses=()=> {
+  const navigate = useNavigate()
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [filterText, setFilterText] = useState("")
   const [sortConfig, setSortConfig] = useState<{ key: keyof Warehouse; direction: "ascending" | "descending" }>({
     key: "name",
     direction: "ascending",
-  });
+  })
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const fetchData = async () => {
     try {
-      const roles = localStorage.getItem("role");
+      const roles = localStorage.getItem("role")
       const response = await axios.get("http://localhost:8787/warehouses", {
-        headers: {
-          role: roles,
-        },
-      });
-      setWarehouses(response.data);
-      setLoading(false);
+        headers: { role: roles },
+      })
+      setWarehouses(response.data)
+      setLoading(false)
     } catch (error) {
-      console.error("Error fetching warehouse data:", error);
-      setError("Failed to load warehouse data.");
-      setLoading(false);
+      console.error("Error fetching warehouse data:", error)
+      setError("Failed to load warehouse data.")
+      setLoading(false)
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  }
 
   const requestSort = (key: keyof Warehouse) => {
-    let direction: "ascending" | "descending" = "ascending";
+    let direction: "ascending" | "descending" = "ascending"
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
+      direction = "descending"
     }
-    setSortConfig({ key, direction });
-  };
+    setSortConfig({ key, direction })
+  }
 
   const sortedWarehouses = [...warehouses].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === "ascending" ? -1 : 1;
+      return sortConfig.direction === "ascending" ? -1 : 1
     }
     if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === "ascending" ? 1 : -1;
+      return sortConfig.direction === "ascending" ? 1 : -1
     }
-    return 0;
-  });
+    return 0
+  })
 
   const filteredWarehouses = sortedWarehouses.filter(
     (wh) =>
       wh.name.toLowerCase().includes(filterText.toLowerCase()) ||
       wh.location.toLowerCase().includes(filterText.toLowerCase())
-  );
+  )
 
   const handleOpenWarehouse = (id: string) => {
-    localStorage.setItem("warehouseId", id);
-    navigate(`/warehouse`);
-  };
+    localStorage.setItem("warehouseId", id)
+    navigate(`/warehouse`)
+  }
 
   const handleRemoveWarehouse = async (id: string) => {
     try {
-      localStorage.setItem("warehouseId", id);
-      const warehouseId = localStorage.getItem("warehouseId");
+      localStorage.setItem("warehouseId", id)
+      const warehouseId = localStorage.getItem("warehouseId")
       await axios.post(`http://localhost:8787/warehouses/delete`, {}, {
-        headers: {
-          'warehouseId': warehouseId,
-        },
-      });
-      setWarehouses(warehouses.filter((warehouse) => warehouse.id !== id));
+        headers: { 'warehouseId': warehouseId },
+      })
+      setWarehouses(warehouses.filter((warehouse) => warehouse.id !== id))
     } catch (error) {
-      console.error("Error removing warehouse:", error);
-      setError("Failed to remove warehouse.");
+      console.error("Error removing warehouse:", error)
+      setError("Failed to remove warehouse.")
     }
-  };
-
-  if (loading) {
-    return <div className="text-center text-[#C5C6C7]">Loading...</div>;
   }
 
+  if (loading) {
+    return (
+        <div className="flex items-center justify-center h-screen bg-white text-gray-900">
+            <div className="spinner"></div>
+            <span className="ml-4">Warehouses Loading...</span>
+        </div>
+    );
+}
+
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return <div className="flex items-center justify-center h-screen text-red-500">{error}</div>
   }
 
   return (
-    <div className="bg-[#0B0C10] min-h-screen">
-      <div className="container mx-auto p-6 bg-[#1F2833] rounded-lg shadow-md mt-10">
-        <h1 className="text-3xl font-bold text-center mb-6 text-[#C5C6C7]">Warehouses</h1>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            className="w-full p-3 border border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-            placeholder="Search by warehouse name or location..."
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-          />
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Warehouses</h1>
+          <button
+            onClick={() => navigate("/addwarehouse")}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition duration-300"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Add Warehouse
+          </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-[#1F2833] shadow-md rounded-lg">
-            <thead>
-              <tr className="bg-[#0B0C10] text-[#C5C6C7]">
-                <th
-                  onClick={() => requestSort("name")}
-                  className="p-4 text-left cursor-pointer hover:bg-[#45A29E] transition duration-200"
-                >
-                  Warehouse Name {sortConfig.key === "name" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search warehouses..."
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+              />
+              <SearchIcon className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+            </div>
+          </div>
+
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                {["name", "location", "totalstock"].map((key) => (
+                  <th
+                    key={key}
+                    onClick={() => requestSort(key as keyof Warehouse)}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  >
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                    {sortConfig.key === key && (sortConfig.direction === "ascending" ? " ↑" : " ↓")}
+                  </th>
+                ))}
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
                 </th>
-                <th
-                  onClick={() => requestSort("location")}
-                  className="p-4 text-left cursor-pointer hover:bg-[#45A29E] transition duration-200"
-                >
-                  Location {sortConfig.key === "location" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th
-                  onClick={() => requestSort("totalstock")}
-                  className="p-4 text-left cursor-pointer hover:bg-[#45A29E] transition duration-200"
-                >
-                  Total Stock {sortConfig.key === "totalstock" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {filteredWarehouses.map((wh) => (
-                <tr key={wh.id} className="hover:bg-[#0B0C10] transition duration-200">
-                  <td className="px-4 py-2 border-t border-gray-700 text-[#C5C6C7]">{wh.name}</td>
-                  <td className="px-4 py-2 border-t border-gray-700 text-[#C5C6C7]">{wh.location}</td>
-                  <td className="px-4 py-2 border-t border-gray-700 text-[#C5C6C7]">{wh.totalstock}</td>
-                  <td className="px-4 py-2 border-t border-gray-700">
+                <tr key={wh.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{wh.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{wh.location}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{wh.totalstock}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => handleOpenWarehouse(wh.id)}
-                      className="text-[#C5C6C7] bg-[#45A29E] px-3 py-1 rounded-lg border-2 border-[#45A29E] transition duration-200 hover:bg-[#66FCF1]"
+                      className="text-blue-600 hover:text-blue-900 mr-4"
                     >
                       Open
                     </button>
                     <button
                       onClick={() => handleRemoveWarehouse(wh.id)}
-                      className="ml-2 text-black px-3 py-1 rounded-lg border-1 border-black transition duration-200 bg-rose-500 hover:bg-red-600"
+                      className="text-red-600 hover:text-red-900"
                     >
                       Remove
                     </button>
@@ -160,11 +167,8 @@ export const Warehouses = () => {
             </tbody>
           </table>
         </div>
-
-        <div className="mt-6 text-right">
-          <Button name="Add Warehouse" onClick={() => navigate("/addwarehouse")} />
-        </div>
       </div>
     </div>
-  );
-};
+  )
+}
+export default Warehouses;

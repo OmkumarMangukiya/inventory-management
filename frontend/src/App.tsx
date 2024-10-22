@@ -1,8 +1,8 @@
 import './App.css';
-import { Signin } from './pages/Signin';
-import { Signup } from './pages/Signup';
-import { Warehouses } from './pages/Warehouses';
-import { AddWarehouse } from './pages/AddWarehouse';
+import Signin  from './pages/Signin';
+import Signup  from './pages/Signup';
+import Warehouses from './pages/Warehouses';
+import  AddWarehouse  from './pages/AddWarehouse';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Warehouse from './pages/Warehouse';
 import AddProduct from './Components/AddProduct';

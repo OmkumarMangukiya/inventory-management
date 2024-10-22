@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState ,useRef} from 'react';
 
 interface InputProps {
     type: string;
@@ -7,17 +7,54 @@ interface InputProps {
     className?: string;
 }
 
-const Input: React.FC<InputProps> = ({ type, placeholder, onChange }) => {
+const Input: React.FC<InputProps> = ({ type, placeholder, onChange, className }) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const [hasValue, setHasValue] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (e.target.value === '') {
+            setIsFocused(false);
+            setHasValue(false);
+        } else {
+            setHasValue(true);
+        }
+    };
+    const handleLabelClick = () => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
     return (
-        <div className='relative rounded-lg  bg-white p-1 shadow-md transition-all duration-300 ease-in-out border-2 border-gray-700 hover:shadow-lg focus-within:ring-1 focus-within:ring-black '>
-            <input
-                type={type}
-                placeholder={placeholder}
-                onChange={onChange}
-                className="w-full px-4 py-2 bg-transparent text-black placeholder-gray-700 border-none focus:outline-none focus:ring-0"
-            />
-        </div>
+        <div className="relative">
+        <input
+            ref={inputRef}
+            type={type}
+            onChange={(e) => {
+                onChange(e);
+                if (e.target.value !== '') {
+                    setHasValue(true);
+                } else {
+                    setHasValue(false);
+                }
+            }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            className={`w-full px-4 py-2 bg-transparent text-black border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black ${className}`}
+        />
+        <label
+            onClick={handleLabelClick}
+            className={`absolute left-4 px-1 transition-all duration-300 ease-in-out ${
+                isFocused || hasValue ? 'text-xs -top-3 text-gray-600 bg-gray-50' : 'text-base top-2 text-gray-400 bg-transparent'
+            }`}
+        >
+            {placeholder}
+        </label>
+    </div>
     );
-}
+};
 
 export default Input;

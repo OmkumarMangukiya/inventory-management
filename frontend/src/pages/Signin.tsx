@@ -1,116 +1,126 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import Input from "../Components/Input";
-import Button from "../Components/Button";
-import { auth } from "../../../backend/src/routes/auth";
-import signinphoto from "./signinphoto.png";
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import { auth } from "../../../backend/src/routes/auth"
+import { AlertCircle } from "lucide-react"
+import Input from "../Components/Input"
+import Button from "../Components/Button"
+export default function Signin() {
+  const navigate = useNavigate()
+  const [password, setPassword] = useState("")
+  const [username, setUsername] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const token = localStorage.getItem("token")
 
-export const Signin = () => {
-    const navigate = useNavigate();
-    const [password, setPassword] = useState("");
-    const [username, setUsername] = useState("");
-    const token = localStorage.getItem('token');
+  useEffect(() => {
+    if (token) {
+      const decoded = auth(token)
+      if (!decoded) {
+        console.log("Token is not valid")
+        return
+      }
 
-    useEffect(() => {
-        if (token) {
-            const decoded = auth(token);
-            if (!decoded) {
-                console.log("Token is not valid");
-                return;
+      axios
+        .post(
+          `http://localhost:8787/users/role`,
+          {},
+          {
+            headers: {
+              role: localStorage.getItem("role"),
+            },
+          }
+        )
+        .then((response) => {
+          navigate(`/${response.data.headTo}`)
+        })
+        .catch((error) => {
+          console.error("Error fetching role!", error)
+          setError("Error fetching user role. Please try again.")
+        })
+    }
+  }, [token, navigate])
+
+  const handleSignIn = () => {
+    axios
+      .post(`http://localhost:8787/users/signin`, { username, password })
+      .then((response) => {
+        localStorage.setItem("token", response.data.token)
+        localStorage.setItem("role", response.data.role)
+        axios
+          .post(
+            `http://localhost:8787/users/role`,
+            {},
+            {
+              headers: {
+                role: response.data.role,
+              },
             }
+          )
+          .then((roleResponse) => {
+            navigate(`/${roleResponse.data.headTo}`)
+          })
+          .catch((error) => {
+            console.error("Error getting role!", error)
+            setError("Error getting user role. Please try again.")
+          })
+      })
+      .catch((error) => {
+        console.error("Sign in error!", error)
+        setError("Invalid username or password. Please try again.")
+      })
+      
+  }
 
-            axios.post(`http://localhost:8787/users/role`, {}, {
-                headers: {
-                    role: localStorage.getItem('role'),
-                },
-            })
-            .then((response) => {
-                navigate(`/${response.data.headTo}`);
-            })
-            .catch((error) => {
-                console.error("Error fetching role!", error);
-            });
-        }
-    }, [token, navigate]);
-
-    const handleSignIn = () => {
-        axios.post(`http://localhost:8787/users/signin`, { username, password })
-            .then((response) => {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('role', response.data.role);
-                axios.post(`http://localhost:8787/users/role`, {}, {
-                    headers: {
-                        role: response.data.role,
-                    },
-                })
-                .then((roleResponse) => {
-                    navigate(`/${roleResponse.data.headTo}`);
-                })
-                .catch((error) => {
-                    console.error("Error getting role!", error);
-                });
-            })
-            .catch((error) => {
-                console.error("Sign in error!", error);
-            });
-    };
-
-    return (
-        <div className="relative min-h-screen flex flex-col md:flex-row items-center justify-center bg-[#0B0C10] text-[#C5C6C7]">
-            {/* Background Image */}
-            <div className="absolute inset-0">
-                <img 
-                    src={signinphoto} 
-                    alt="Sign in background" 
-                    className="w-full h-full object-cover opacity-30" 
-                />
-            </div>
-
-            {/* Quote Section */}
-            <div className="relative z-10 flex-1 text-center md:text-left text-2xl md:text-4xl font-semibold px-6 mb-8 md:mb-0">
-                <div className="bg-gradient-to-r from-[#0B0C10] to-transparent py-4 md:py-8 px-6 md:px-10 rounded-md">
-                    "Stay on track, never look back."
-                </div>
-            </div>
-
-            {/* Form Section */}
-            <div className="relative z-20 w-full max-w-md bg-[#1F2833] bg-opacity-90 p-8 rounded-lg shadow-lg backdrop-blur-md">
-                <h2 className="text-center text-3xl font-bold text-[#C5C6C7] mb-6">Sign In</h2>
-
-                <div className="mb-4">
-                    <Input 
-                        onChange={(e) => setUsername(e.target.value)} 
-                        placeholder="Username" 
-                        type="text" 
-                        className="w-full p-4 border border-[#C5C6C7] rounded-lg text-[#0B0C10] focus:ring-2 focus:ring-[#45A29E]"
-                    />
-                </div>
-
-                <div className="mb-6">
-                    <Input 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        placeholder="Password" 
-                        type="password" 
-                        className="w-full p-4 border border-[#C5C6C7] rounded-lg text-[#0B0C10] focus:ring-2 focus:ring-[#45A29E]"
-                    />
-                </div>
-
-                <Button 
-                    name="Sign in" 
-                    onClick={handleSignIn} 
-                    className="w-full bg-[#45A29E] hover:bg-[#3B8885] text-black font-semibold p-4 rounded-lg transition duration-300"
-                />
-
-                <div className="mt-6 text-center text-[#C5C6C7]">
-                    <span>Don't have an account?</span>
-                    <button 
-                        onClick={() => navigate('/signup')} 
-                        className="text-[#45A29E] hover:underline ml-2">
-                        Signup Now
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
         </div>
-    );
-};
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+              <p className="ml-3 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+        <div className="mt-8 space-y-6">
+                    <div className="rounded-md shadow-sm -space-y-px">
+                        <div className="relative pb-4">
+                            <Input
+                                type="text"
+                                placeholder="Username"
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 sm:text-sm"
+                            />
+                        </div>
+                        <div className="relative">
+                            <Input
+                                type="password"
+                                placeholder="Password"
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 sm:text-sm"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <Button
+                            name="Sign In"
+                            onClick={handleSignIn}
+                            className="w-full bg-blue-600 text-white border-none hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+                <div className="text-center">
+                    <p className="mt-2 text-sm text-gray-600">
+                        Don't have an account?{' '}
+                        <button onClick={() => navigate('/signup')} className="font-medium text-blue-600 hover:text-blue-500">
+                            Sign up
+                        </button>
+                    </p>
+                </div>
+            </div>
+               </div>
+  )
+}

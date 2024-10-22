@@ -1,102 +1,141 @@
-import Input from "./Input";
-import { useState } from "react";
-import DatePicker from "react-datepicker";
-import axios from "axios";
-import "react-datepicker/dist/react-datepicker.css";
-import { useNavigate } from "react-router-dom";
-import Button from "./Button";
+import { useState } from "react"
+import DatePicker from "react-datepicker"
+import axios from "axios"
+import "react-datepicker/dist/react-datepicker.css"
+import { useNavigate } from "react-router-dom"
+import { AlertCircle } from "lucide-react"
 
-const AddProduct = () => {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState(0);
-  const [qauntity, setQauntity] = useState(0);
-  const [date, setDate] = useState<Date | null>(new Date());
+export default function AddProduct() {
+  const navigate = useNavigate()
+  const [name, setName] = useState("")
+  const [price, setPrice] = useState<number | string>("")
+  const [quantity, setQuantity] = useState<number | string>("")
+  const [date, setDate] = useState<Date | null>(new Date())
+  const [error, setError] = useState<string | null>(null)
 
-  const handleClick = () => {
-    const warehouseId = localStorage.getItem('warehouseId');
-    const token = localStorage.getItem('token');
-    axios.post(`http://localhost:8787/addproduct`, { name, price, qauntity, date }, {
-      headers: {
-        'warehouseId': warehouseId,
-        'token': token
-      }
-    }).then((response) => {
-      console.log(response);
-    });
-    navigate('/warehouse');
-  };
+  const handleClick = async () => {
+    const warehouseId = localStorage.getItem("warehouseId")
+    const token = localStorage.getItem("token")
+    try {
+      const response = await axios.post(
+        `http://localhost:8787/addproduct`,
+        { name, price: Number(price), qauntity: Number(quantity), date },
+        {
+          headers: {
+            warehouseId: warehouseId,
+            token: token,
+          },
+        }
+      )
+      console.log(response)
+      navigate("/warehouse")
+    } catch (error) {
+      console.error("Error adding product:", error)
+      setError("Failed to add product. Please try again.")
+    }
+  }
 
   return (
-    <div className="flex justify-center pt-10 bg-gradient-to-r from-[#0B0C10] to-[#1F2833] min-h-screen">
-      <div className="p-7 w-full max-w-sm bg-[#1F2833] rounded-lg shadow-md mt-16 mb-64">
-        <h1 className="text-2xl font-bold mb-4 text-[#C5C6C7]">Add Product</h1>
-
-        <div className="mb-4">
-          <Input
-            type="text"
-            placeholder="Product Name"
-            className="w-full p-3 border border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-            onChange={(e) => setName(e.target.value)}
-          />
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Add New Product</h2>
         </div>
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+              <p className="ml-3 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+        <form className="mt-8 space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="product-name" className="sr-only">
+                Product Name
+              </label>
+              <input
+                id="product-name"
+                name="product-name"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Product Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="price" className="sr-only">
+                Price
+              </label>
+              <input
+                id="price"
+                name="price"
+                type="number"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Price"
+                value={price}
+                onChange={(e) => {
+                  const value = Number(e.target.value)
+                  if (value >= 0) {
+                    setPrice(value)
+                  } else {
+                    setError("Price must be greater than or equal to 0")
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <label htmlFor="quantity" className="sr-only">
+                Quantity
+              </label>
+              <input
+                id="quantity"
+                name="quantity"
+                type="number"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Quantity"
+                value={quantity}
+                onChange={(e) => {
+                  const value = Number(e.target.value)
+                  if (value >= 0) {
+                    setQuantity(value)
+                  } else {
+                    setError("Quantity must be greater than or equal to 0")
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <label htmlFor="expiry-date" className="sr-only">
+                Expiry Date
+              </label>
+              <DatePicker
+                id="expiry-date"
+                selected={date}
+                onChange={(date: Date | null) => setDate(date)}
+                dateFormat="dd/MM/yyyy"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholderText="Expiry Date"
+              />
+            </div>
+          </div>
 
-        <div className="mb-4">
-          <Input
-            type="number"
-            placeholder="Price"
-            className="w-full p-3 border border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-            onChange={(e) => {
-              const value = Number(e.target.value);
-              if (value >= 0) {
-                setPrice(value);
-              } else {
-                alert("Price must be greater than or equal to 0");
-              }
-            }}
-          />
-        </div>
-
-        <div className="mb-4">
-          <Input
-            type="number"
-            placeholder="Quantity"
-            className="w-full p-3 border border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-            onChange={(e) => {
-              const value = Number(e.target.value);
-              if (value >= 0) {
-                setQauntity(value);
-              } else {
-                alert("Quantity must be greater than or equal to 0");
-              }
-            }}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-[#C5C6C7] text-sm font-bold mb-2">
-            Expiry Date
-          </label>
-          <DatePicker
-            selected={date}
-            onChange={(date) => setDate(date)}
-            dateFormat="dd/MM/yyyy"
-            className="border-2 border-gray-600 bg-[#0B0C10] text-[#C5C6C7] rounded-md py-1 px-4 max-w-32 focus:outline-none focus:ring-2 focus:ring-[#45A29E] transition duration-200"
-          />
-        </div>
-
-        <div className="flex justify-end">
-          <Button
-            onClick={handleClick}
-            className="bg-[#45A29E] text-[#0B0C10] font-bold border-2 border-black py-2 px-4 rounded-lg hover:bg-[#66FCF1] hover:text-black transition duration-200 shadow-md relative overflow-hidden group"
-          >
-            <span className="relative z-10">Add Product</span>
-            <div className="inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-[700ms]"></div>
-          </Button>
-        </div>
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              onClick={handleClick}
+            >
+              Add Product
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  );
-};
-
-export default AddProduct;
+  )
+}

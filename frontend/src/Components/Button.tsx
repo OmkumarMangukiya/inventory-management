@@ -11,7 +11,7 @@ const Button: React.FC<ButtonProps> = ({ name, onClick, className, children }) =
     return (
         <button 
             onClick={onClick} 
-            className={`relative inline-flex items-center justify-center overflow-hidden bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-gray-900 hover:text-white transition duration-200 shadow-md group ${className}`}>
+            className={`relative inline-flex items-center justify-center overflow-hidden border-2 border-black py-2 px-4 rounded-lg transition duration-200 shadow-md group ${className}`}>
             
             <span className="relative z-10">
                 {children ? children : name}

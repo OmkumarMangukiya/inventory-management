@@ -1,111 +1,152 @@
-import React, { useEffect, useState } from "react";
-import { auth } from '../../../backend/src/routes/auth';
-import Button from "../Components/Button";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react"
+import { auth } from "../../../backend/src/routes/auth"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import { SearchIcon, PlusIcon } from "lucide-react"
 
-const Warehouse = () => {
-    interface Product {
-        id: string;
-        name: string;
-        price: number;
-        qauntity: number;
-        expiry: Date;
+interface Product {
+  id: string
+  name: string
+  price: number
+  qauntity: number
+  expiry: Date
+}
+
+export default function Warehouse() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [filterText, setFilterText] = useState("")
+  const [loading, setLoading] = useState(true);
+  const [error,] = useState(null);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("token")
+      if (!token) return
+
+      const authResult = await auth(token)
+      if (!authResult) return
+
+      const { role } = authResult
+      const warehouseId = localStorage.getItem("warehouseId")
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8787/warehouse",
+          {},
+          {
+            headers: {
+              token: token,
+              ...(role === "owner" || role === "headmanager" ? { warehouseId } : {}),
+            },
+          }
+        )
+        setProducts(response.data)
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching warehouse data:", error)
+        setLoading(false);
+      }
     }
-
-    const [product, setProduct] = useState<Product[]>([]);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-
-            const authResult = await auth(token);
-            if (!authResult) return;
-
-            const { role } = authResult;
-            const warehouseId = localStorage.getItem('warehouseId');
-
-            if (role === 'owner' || role === 'headmanager') {
-                axios.post('http://localhost:8787/warehouse', {}, {
-                    headers: {
-                        token: token,
-                        warehouseId: warehouseId,
-                    }
-                }).then((response) => {
-                    setProduct(response.data);
-                });
-            } else if (role === 'manager') {
-                axios.post('http://localhost:8787/warehouse', {}, {
-                    headers: {
-                        token: token,
-                    }
-                }).then((response) => {
-                    setProduct(response.data);
-                });
-            }
-        };
-        fetchData();
-    }, []);
-    
+    fetchData()
+  }, [])
+  if (loading) {
     return (
-        <div className="p-10 max-w-5xl mx-auto bg-[#1F2833] shadow-lg rounded-lg mt-10 border border-[#C5C6C7]">
-            <h1 className="text-4xl font-bold mb-8 text-center text-[#C5C6C7]">Warehouse Products</h1>
-
-            {product.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full table-auto bg-[#1F2833] rounded-lg shadow-md">
-                        <thead>
-                            <tr className="bg-[#0B0C10] text-[#C5C6C7]">
-                                <th className="px-6 py-4 text-left text-lg font-semibold">Product Name</th>
-                                <th className="px-6 py-4 text-left text-lg font-semibold">Price</th>
-                                <th className="px-6 py-4 text-left text-lg font-semibold">Quantity</th>
-                                <th className="px-6 py-4 text-left text-lg font-semibold">Expiry Date</th>
-                                <th className="px-6 py-4 text-left text-lg font-semibold">Total Expense</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {product.map((p, index) => (
-                                <tr key={p.id} className={index % 2 === 0 ? "bg-[#1F2833]" : "bg-[#0B0C10]"}>
-                                    <td className="px-6 py-4 text-[#C5C6C7] text-lg font-medium">{p.name}</td>
-                                    <td className="px-6 py-4 text-[#C5C6C7] text-lg">₹{p.price.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[#C5C6C7] text-lg">{p.qauntity} units</td>
-                                    <td className="px-6 py-4 text-[#C5C6C7] text-lg">
-                                        {new Date(p.expiry).toLocaleDateString("en-GB", {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                        })}
-                                    </td>
-                                    <td className="px-6 py-4 text-[#C5C6C7] text-lg font-medium">₹{(p.price * p.qauntity).toFixed(2)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="text-center text-[#C5C6C7] text-lg mt-10">No products available.</div>
-            )}
-
-            <div className="mt-10 text-right space-x-4">
-                <Button
-                    onClick={() => navigate('/addproduct')}
-
-                    className="bg-white text-black border-2 border-black py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white  transition duration-200 shadow-md relative overflow-hidden group"
-
-                >
-                    <span className="relative z-10">Add Product</span>
-                </Button>
-                <Button
-                    onClick={() => navigate('/warehouseSales')}
-                    className="bg-gradient-to-r from-[#45A29E] to-[#66FCF1] text-white border-2 border-transparent py-2 px-4 rounded-lg hover:from-[#66FCF1] hover:to-[#45A29E] transition duration-200 shadow-md relative overflow-hidden group"
-                >
-                    <span className="relative z-10">Sell</span>
-                </Button>
-            </div>
-        </div>
+      <div className="flex items-center justify-center h-screen bg-white text-gray-900">
+        <div className="spinner"></div>
+        <span className="ml-4">Loading Products...</span>
+      </div>
     );
-};
+  }
 
-export default Warehouse;
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white text-red-500">
+        {error}
+      </div>
+    );
+  }
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(filterText.toLowerCase())
+  )
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Warehouse Products</h1>
+          <button
+            onClick={() => navigate("/addproduct")}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition duration-300"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Add Product
+          </button>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search products..."
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+              />
+              <SearchIcon className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+            </div>
+          </div>
+
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Product Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Quantity
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Expiry Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total Expense
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredProducts.map((product) => (
+                <tr key={product.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{product.price.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.qauntity} units</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(product.expiry).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ₹{(product.price * product.qauntity).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-6 text-right">
+          <button
+            onClick={() => navigate("/warehouseSales")}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300"
+          >
+            Sell
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
