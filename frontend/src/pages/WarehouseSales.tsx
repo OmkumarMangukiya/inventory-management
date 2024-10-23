@@ -1,12 +1,21 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { AlertCircle } from "lucide-react"
+
+interface productData {
+  id: string
+  name: string
+  qauntity : number
+}
 
 export default function WarehouseSales() {
   const [productName, setProductName] = useState("")
   const [soldQuantity, setSoldQuantity] = useState<number | string>("")
   const [error, setError] = useState<string | null>(null)
+  const [productOptions, setProductOptions] = useState<productData[]>([]) 
+  const [maxProductQuantity , setMaxProductQuantity] = useState<number| string>("")
+
   const navigate = useNavigate()
 
   const handleSales = async () => {
@@ -39,6 +48,36 @@ export default function WarehouseSales() {
       setError("Failed to submit sales. Please try again.")
     }
   }
+  const handleProductClick = async () => {
+      const warehouseId = localStorage.getItem("warehouseId");
+      const token = localStorage.getItem('token')
+      try{
+        const response = await axios.post(`http://localhost:8787/warehouse`,{},{
+          headers: {
+            warehouseId: warehouseId,
+            token,
+          },
+        })
+        console.log(response.data);
+        setProductOptions(response.data);
+
+        return 0; 
+      }
+      catch(error){
+        console.error("Error :", error)
+      }
+  }
+  useEffect(()=>{
+    handleProductClick()
+  },[])
+ 
+  const handleQuantityClick = async() =>{
+    productOptions.map((element)=>{
+      if(element.name === productName){
+        setMaxProductQuantity(element.qauntity);
+      }
+    }) 
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -60,16 +99,22 @@ export default function WarehouseSales() {
               <label htmlFor="product-name" className="sr-only">
                 Product Name
               </label>
-              <input
+              <select
                 id="product-name"
                 name="product-name"
-                type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Product Name"
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
-              />
+              >
+                <option value="">Select Product</option>
+                {productOptions.map((element) => (
+                  <option >
+                    {element.name}
+                  </option>
+                ))}
+              </select>
+
             </div>
             <div>
               <label htmlFor="sold-quantity" className="sr-only">
@@ -82,7 +127,8 @@ export default function WarehouseSales() {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Sold Quantity"
-                value={soldQuantity}
+                value={maxProductQuantity}
+                onClick={handleQuantityClick}
                 onChange={(e) => setSoldQuantity(e.target.value)}
               />
             </div>
