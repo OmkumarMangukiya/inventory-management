@@ -14,7 +14,7 @@ const app = new Hono<{
 const warehouseSales = app.post('warehouseSales', async (c) => {
     const warehouseId = c.req.header('warehouseId');
     const body = await c.req.json();
-    const { productName, soldQuantity } = body;
+    const { productName, soldqauntity } = body;
 
     const prisma = new PrismaClient({
         datasourceUrl: c.env?.DATABASE_URL
@@ -32,7 +32,7 @@ const warehouseSales = app.post('warehouseSales', async (c) => {
     if (!product) return c.json({ error: 'Product not found' }, 404);
 
     
-    if (product.qauntity - soldQuantity <= 0) {
+    if (product.qauntity - soldqauntity <= 0) {
         
         const res = await prisma.product.delete({
             where: {
@@ -58,7 +58,7 @@ const warehouseSales = app.post('warehouseSales', async (c) => {
             },
             data: {
                 qauntity: {
-                    decrement: soldQuantity 
+                    decrement: soldqauntity 
                 }
             }
         });
@@ -68,7 +68,7 @@ const warehouseSales = app.post('warehouseSales', async (c) => {
             },
             data: {
                 totalstock: {
-                    decrement: soldQuantity
+                    decrement: soldqauntity
                 }
             }
         });

@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
-import { authenticate } from '../routes/auth';
+import { auth } from '../routes/auth';
 
 export class WarehouseController {
+    [x: string]: any;
     private prisma: PrismaClient;
     constructor(databaseUrl: string, jwtSecret: string) {
         this.prisma = new PrismaClient({
@@ -19,7 +20,7 @@ export class WarehouseController {
         const token = c.req.header('token');
         if (!token) return c.status(401).json({ error: 'Unauthorized' });
 
-        const user = await authenticate(token);
+        const user = await auth(token);
         if (!user) return c.status(401).json({ error: 'Unauthorized' });
 
         const warehouses = await this.prisma.warehouse.findMany();

@@ -9,7 +9,7 @@ export default function AddProduct() {
   const navigate = useNavigate()
   const [name, setName] = useState("")
   const [price, setPrice] = useState<number | string>("")
-  const [quantity, setQuantity] = useState<number | string>("")
+  const [qauntity, setqauntity] = useState<number | string>("")
   const [date, setDate] = useState<Date | null>(new Date())
   const [error, setError] = useState<string | null>(null)
 
@@ -21,7 +21,7 @@ export default function AddProduct() {
     try {
       const response = await axios.post(
         `http://localhost:8787/addproduct`,
-        { name, price: Number(price), qauntity: Number(quantity), date },
+        { name, price: Number(price), qauntity: Number(qauntity), date },
         {
           headers: {
             warehouseId: warehouseId,
@@ -91,23 +91,23 @@ export default function AddProduct() {
               />
             </div>
             <div>
-              <label htmlFor="quantity" className="sr-only">
-                Quantity
+              <label htmlFor="qauntity" className="sr-only">
+                qauntity
               </label>
               <input
-                id="quantity"
-                name="quantity"
+                id="qauntity"
+                name="qauntity"
                 type="number"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Quantity"
-                value={quantity}
+                placeholder="qauntity"
+                value={qauntity}
                 onChange={(e) => {
                   const value = Number(e.target.value)
                   if (value >= 0) {
-                    setQuantity(value)
+                    setqauntity(value)
                   } else {
-                    setError("Quantity must be greater than or equal to 0")
+                    setError("qauntity must be greater than or equal to 0")
                   }
                 }}
               />

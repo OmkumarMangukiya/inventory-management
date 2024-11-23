@@ -11,10 +11,10 @@ interface productData {
 
 export default function WarehouseSales() {
   const [productName, setProductName] = useState("")
-  const [soldQuantity, setSoldQuantity] = useState<number | string>("")
+  const [soldqauntity, setSoldqauntity] = useState<number | string>("")
   const [error, setError] = useState<string | null>(null)
   const [productOptions, setProductOptions] = useState<productData[]>([]) 
-  const [maxProductQuantity , setMaxProductQuantity] = useState<number| string>("")
+  const [maxProductqauntity , setMaxProductqauntity] = useState<number| string>("")
 
   const navigate = useNavigate()
 
@@ -25,15 +25,15 @@ export default function WarehouseSales() {
         setError("Warehouse ID is missing")
         return
       }
-      if (!productName || !soldQuantity) {
-        setError("Product name and quantity are required")
+      if (!productName || !soldqauntity) {
+        setError("Product name and qauntity are required")
         return
       }
       await axios.post(
         "http://localhost:8787/warehouseSales",
         {
           productName,
-          soldQuantity: parseInt(soldQuantity as string),
+          soldqauntity: parseInt(soldqauntity as string),
         },
         {
           headers: {
@@ -71,10 +71,10 @@ export default function WarehouseSales() {
     handleProductClick()
   },[])
  
-  const handleQuantityClick = async() =>{
+  const handleqauntityClick = async() =>{
     productOptions.map((element)=>{
       if(element.name === productName){
-        setMaxProductQuantity(element.qauntity);
+        setMaxProductqauntity(element.qauntity);
       }
     }) 
   }
@@ -117,19 +117,19 @@ export default function WarehouseSales() {
 
             </div>
             <div>
-              <label htmlFor="sold-quantity" className="sr-only">
-                Sold Quantity
+              <label htmlFor="sold-qauntity" className="sr-only">
+                Sold qauntity
               </label>
               <input
-                id="sold-quantity"
-                name="sold-quantity"
+                id="sold-qauntity"
+                name="sold-qauntity"
                 type="number"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Sold Quantity"
-                value={maxProductQuantity}
-                onClick={handleQuantityClick}
-                onChange={(e) => setSoldQuantity(e.target.value)}
+                placeholder="Sold qauntity"
+                value={maxProductqauntity}
+                onClick={handleqauntityClick}
+                onChange={(e) => setSoldqauntity(e.target.value)}
               />
             </div>
           </div>
