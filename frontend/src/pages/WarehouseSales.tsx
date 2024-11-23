@@ -6,15 +6,15 @@ import { AlertCircle } from "lucide-react"
 interface productData {
   id: string
   name: string
-  qauntity : number
+  quantity : number
 }
 
 export default function WarehouseSales() {
   const [productName, setProductName] = useState("")
-  const [soldqauntity, setSoldqauntity] = useState<number | string>("")
+  const [soldquantity, setSoldquantity] = useState<number | string>("")
   const [error, setError] = useState<string | null>(null)
   const [productOptions, setProductOptions] = useState<productData[]>([]) 
-  const [maxProductqauntity , setMaxProductqauntity] = useState<number| string>("")
+  const [maxProductquantity , setMaxProductquantity] = useState<number| string>("")
 
   const navigate = useNavigate()
 
@@ -25,15 +25,28 @@ export default function WarehouseSales() {
         setError("Warehouse ID is missing")
         return
       }
-      if (!productName || !soldqauntity) {
-        setError("Product name and qauntity are required")
+      if (!productName) {
+        setError("Please select a product")
+        return
+      }
+      if (!soldquantity || soldquantity === "") {
+        setError("Please enter quantity")
+        return
+      }
+      const quantity = parseInt(soldquantity as string)
+      if (isNaN(quantity) || quantity <= 0) {
+        setError("Please enter a valid quantity greater than 0")
+        return
+      }
+      if (quantity > Number(maxProductquantity)) {
+        setError(`Only ${maxProductquantity} units available`)
         return
       }
       await axios.post(
         "http://localhost:8787/warehouseSales",
         {
           productName,
-          soldqauntity: parseInt(soldqauntity as string),
+          soldquantity: quantity,
         },
         {
           headers: {
@@ -43,9 +56,9 @@ export default function WarehouseSales() {
       )
       setError(null)
       navigate("/warehouse")
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in submitting sales:", error)
-      setError("Failed to submit sales. Please try again.")
+      setError(error.response?.data?.error || "Failed to submit sales. Please try again.")
     }
   }
   const handleProductClick = async () => {
@@ -71,13 +84,36 @@ export default function WarehouseSales() {
     handleProductClick()
   },[])
  
-  const handleqauntityClick = async() =>{
-    productOptions.map((element)=>{
-      if(element.name === productName){
-        setMaxProductqauntity(element.qauntity);
+  const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedName = e.target.value;
+    setProductName(selectedName);
+    
+    const selectedProduct = productOptions.find(product => product.name === selectedName);
+    if (selectedProduct) {
+      setMaxProductquantity(selectedProduct.quantity);
+      setSoldquantity("");
+    } else {
+      setMaxProductquantity("");
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numValue = parseInt(value);
+    
+    if (value === "") {
+      setSoldquantity("");
+      return;
+    }
+
+    if (!isNaN(numValue)) {
+      if (numValue <= Number(maxProductquantity)) {
+        setSoldquantity(numValue);
+      } else {
+        setSoldquantity(Number(maxProductquantity));
       }
-    }) 
-  }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -105,11 +141,11 @@ export default function WarehouseSales() {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 value={productName}
-                onChange={(e) => setProductName(e.target.value)}
+                onChange={handleProductChange}
               >
                 <option value="">Select Product</option>
                 {productOptions.map((element) => (
-                  <option >
+                  <option key={element.id} value={element.name}>
                     {element.name}
                   </option>
                 ))}
@@ -117,19 +153,20 @@ export default function WarehouseSales() {
 
             </div>
             <div>
-              <label htmlFor="sold-qauntity" className="sr-only">
-                Sold qauntity
+              <label htmlFor="sold-quantity" className="sr-only">
+                Sold quantity
               </label>
               <input
-                id="sold-qauntity"
-                name="sold-qauntity"
+                id="sold-quantity"
+                name="sold-quantity"
                 type="number"
                 required
+                min="1"
+                max={maxProductquantity as number}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Sold qauntity"
-                value={maxProductqauntity}
-                onClick={handleqauntityClick}
-                onChange={(e) => setSoldqauntity(e.target.value)}
+                placeholder={`Enter quantity (max: ${maxProductquantity})`}
+                value={soldquantity}
+                onChange={handleQuantityChange}
               />
             </div>
           </div>

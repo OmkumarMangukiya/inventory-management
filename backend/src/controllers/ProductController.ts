@@ -57,14 +57,14 @@ export class ProductController {
         });
 
         if (productExist) {
-            const quan = productExist.qauntity + body.qauntity;
+            const quan = productExist.quantity + body.quantity;
 
             const product = await this.prisma.product.update({
                 where: {
                     id: productExist.id
                 },
                 data: {
-                    qauntity: quan
+                    quantity: quan
                 }
             });
             await this.prisma.warehouse.update({
@@ -73,7 +73,7 @@ export class ProductController {
                 },
                 data: {
                     totalstock: {
-                        increment: body.qauntity
+                        increment: body.quantity
                     }
                 }
             });
@@ -83,7 +83,7 @@ export class ProductController {
                 data: {
                     name: body.name,
                     price: body.price,
-                    qauntity: body.qauntity,
+                    quantity: body.quantity,
                     expiry: parsedExpiry,
                     warehouseIds: [warehouseId]
                 }
@@ -94,7 +94,7 @@ export class ProductController {
                 },
                 data: {
                     totalstock: {
-                        increment: body.qauntity
+                        increment: body.quantity
                     }
                 }
             });

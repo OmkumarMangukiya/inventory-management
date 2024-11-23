@@ -31,11 +31,12 @@ const  Warehouses=()=> {
       const response = await axios.get("http://localhost:8787/warehouses", {
         headers: { role: roles },
       })
-      setWarehouses(response.data)
+      setWarehouses(Array.isArray(response.data) ? response.data : [])
       setLoading(false)
     } catch (error) {
       console.error("Error fetching warehouse data:", error)
       setError("Failed to load warehouse data.")
+      setWarehouses([])
       setLoading(false)
     }
   }
@@ -48,21 +49,25 @@ const  Warehouses=()=> {
     setSortConfig({ key, direction })
   }
 
-  const sortedWarehouses = [...warehouses].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === "ascending" ? -1 : 1
-    }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === "ascending" ? 1 : -1
-    }
-    return 0
-  })
+  const sortedWarehouses = Array.isArray(warehouses) 
+    ? [...warehouses].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? -1 : 1
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? 1 : -1
+        }
+        return 0
+      })
+    : [];
 
-  const filteredWarehouses = sortedWarehouses.filter(
-    (wh) =>
-      wh.name.toLowerCase().includes(filterText.toLowerCase()) ||
-      wh.location.toLowerCase().includes(filterText.toLowerCase())
-  )
+  const filteredWarehouses = Array.isArray(sortedWarehouses)
+    ? sortedWarehouses.filter(
+        (wh) =>
+          wh.name.toLowerCase().includes(filterText.toLowerCase()) ||
+          wh.location.toLowerCase().includes(filterText.toLowerCase())
+      )
+    : [];
 
   const handleOpenWarehouse = (id: string) => {
     localStorage.setItem("warehouseId", id)
@@ -143,27 +148,35 @@ const  Warehouses=()=> {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredWarehouses.map((wh) => (
-                <tr key={wh.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{wh.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{wh.location}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{wh.totalstock}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => handleOpenWarehouse(wh.id)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      Open
-                    </button>
-                    <button
-                      onClick={() => handleRemoveWarehouse(wh.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Remove
-                    </button>
+              {filteredWarehouses.length > 0 ? (
+                filteredWarehouses.map((wh) => (
+                  <tr key={wh.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{wh.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{wh.location}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{wh.totalstock}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => handleOpenWarehouse(wh.id)}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                      >
+                        Open
+                      </button>
+                      <button
+                        onClick={() => handleRemoveWarehouse(wh.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                    No warehouses found
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

@@ -8,24 +8,32 @@ interface Product {
   id: string
   name: string
   price: number
-  qauntity: number
+  quantity: number
   expiry: Date
 }
 
 export default function Warehouse() {
   const [products, setProducts] = useState<Product[]>([])
   const [filterText, setFilterText] = useState("")
-  const [loading, setLoading] = useState(true);
-  const [error,] = useState(null);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token")
-      if (!token) return
+      if (!token) {
+        setError("Authentication token missing")
+        setLoading(false)
+        return
+      }
 
       const authResult = await auth(token)
-      if (!authResult) return
+      if (!authResult) {
+        setError("Authentication failed")
+        setLoading(false)
+        return
+      }
 
       const { role } = authResult
       const warehouseId = localStorage.getItem("warehouseId")
@@ -37,19 +45,21 @@ export default function Warehouse() {
           {
             headers: {
               token: token,
-              ...(role === "owner" || role === "headmanager" ? { warehouseId } : {}),
+              warehouseId: warehouseId,
             },
           }
         )
-        setProducts(response.data)
-        setLoading(false);
+        setProducts(Array.isArray(response.data) ? response.data : [])
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching warehouse data:", error)
-        setLoading(false);
+        setProducts([])
+        setLoading(false)
       }
     }
     fetchData()
   }, [])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-white text-gray-900">
@@ -116,7 +126,7 @@ export default function Warehouse() {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  qauntity
+                  quantity
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Expiry Date
@@ -127,23 +137,31 @@ export default function Warehouse() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
-                <tr key={product.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{product.price.toFixed(2)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.qauntity} units</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(product.expiry).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ₹{(product.price * product.qauntity).toFixed(2)}
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <tr key={product.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{product.price.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.quantity} units</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(product.expiry).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      ₹{(product.price * product.quantity).toFixed(2)}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                    No products found. Click "Add Product" to add your first product.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

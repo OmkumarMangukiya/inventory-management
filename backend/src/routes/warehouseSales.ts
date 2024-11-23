@@ -1,8 +1,6 @@
 import { Hono } from "hono";
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
-import { sign } from "hono/utils/jwt/jwt";
 import { SignatureKey } from "hono/utils/jwt/jws";
+import { WarehouseController } from "../controllers/WarehouseController";
 
 const app = new Hono<{
     Bindings: {
@@ -11,70 +9,9 @@ const app = new Hono<{
     }
 }>();
 
-const warehouseSales = app.post('warehouseSales', async (c) => {
-    const warehouseId = c.req.header('warehouseId');
-    const body = await c.req.json();
-    const { productName, soldqauntity } = body;
-
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env?.DATABASE_URL
-    }).$extends(withAccelerate());
-
-    const product = await prisma.product.findFirst({
-        where: {
-            name: productName,
-            warehouseIds: {
-                has: warehouseId
-            }
-        }
-    });
-
-    if (!product) return c.json({ error: 'Product not found' }, 404);
-
-    
-    if (product.qauntity - soldqauntity <= 0) {
-        
-        const res = await prisma.product.delete({
-            where: {
-                id: product.id
-            }
-        });
-        const res1 = await prisma.warehouse.update({
-            where: {
-                id: warehouseId
-            },
-            data: {
-                totalstock: {
-                    decrement: product.qauntity 
-                }
-            }
-        });
-
-        return c.json(res);
-    } else {
-        const res = await prisma.product.update({
-            where: {
-                id: product.id,
-            },
-            data: {
-                qauntity: {
-                    decrement: soldqauntity 
-                }
-            }
-        });
-        const res1 = await prisma.warehouse.update({
-            where: {
-                id: warehouseId
-            },
-            data: {
-                totalstock: {
-                    decrement: soldqauntity
-                }
-            }
-        });
-
-        return c.json(res);
-    }
+app.post('/warehouseSales', async (c) => {
+    const warehouseController = new WarehouseController(c.env.DATABASE_URL, c.env.JWT_SECRET);
+    return await warehouseController.recordSales(c);
 });
 
-export default warehouseSales;
+export default app;

@@ -10,7 +10,7 @@ export default function AddProduct() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [price, setPrice] = useState<number | string>("");
-  const [qauntity, setqauntity] = useState<number | string>("");
+  const [quantity, setquantity] = useState<number | string>("");
   const [date, setDate] = useState<Date | null>(new Date());
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export default function AddProduct() {
     try {
       const response = await axios.post(
         "http://localhost:8787/addproduct",
-        { name, price: Number(price), qauntity: Number(qauntity), date },
+        { name, price: Number(price), quantity: Number(quantity), date },
         {
           headers: {
             warehouseId: warehouseId,
@@ -87,15 +87,15 @@ export default function AddProduct() {
               {/* Replace with custom Input component */}
               <Input
                 type="number"
-                name="qauntity"
-                placeholder="qauntity"
+                name="quantity"
+                placeholder="quantity"
                 onChange={(e) => {
                   const value = Number(e.target.value);
                   if (value > 0) {
-                    setqauntity(value);
+                    setquantity(value);
                     setError(null); // Clear error if valid
                   } else {
-                    setError("qauntity must be greater than 0");
+                    setError("quantity must be greater than 0");
                   }
                 }}
                 className="rounded-md"

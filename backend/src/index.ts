@@ -19,7 +19,7 @@ app.route('/users',signup);
 app.route('/users',role)
 app.route('/',warehouses);
 app.route('/',addWareshouse)
-app.route('/',warehouse)
+app.route('/warehouse', warehouse)
 app.route('/',deleteWarehouse)
 app.route('/',addProduct)
 app.route('/',warehouseSales)

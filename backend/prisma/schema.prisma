@@ -24,19 +24,19 @@ model user {
 }
 
 model product {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  price     Int
-  qauntity  Int
-  expiry    DateTime
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  name         String   @unique
+  price        Int
+  quantity     Int
+  expiry       DateTime
+  createdAt    DateTime @default(now())
   warehouseIds String[] @default([])
 }
 
 model warehouse {
-  id        String   @id @default(cuid())
-  name      String
-  location  String
-  totalstock Int  
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  name       String
+  location   String
+  totalstock Int
+  createdAt  DateTime @default(now())
 }
