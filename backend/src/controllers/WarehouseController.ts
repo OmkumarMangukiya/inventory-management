@@ -179,4 +179,75 @@ export class WarehouseController {
             return c.json([]); // Return empty array on error
         }
     }
+
+    public addWarehouse = async (c: any) => {
+        const token = c.req.header('token');
+        if (!token) {
+            return c.json({ error: "Token is missing" }, 400);
+        }
+
+        const decoded = await verify(token, this.jwtSecret) as { 
+            userId: string; 
+            username: string; 
+            role: string 
+        };
+        
+        if (!decoded) {
+            return c.json({ error: "Invalid token" }, 401);
+        }
+
+        try {
+            const body = await c.req.json();
+            
+            if (!body.name || !body.location) {
+                return c.json({ error: "Name and location are required" }, 400);
+            }
+
+            const warehouse = await this.prisma.warehouse.create({
+                data: {
+                    name: body.name,
+                    location: body.location,
+                    totalstock: 0
+                }
+            });
+
+            const user = await this.prisma.user.findUnique({
+                where: {
+                    id: decoded.userId
+                },
+                select: {
+                    warehouseIds: true
+                }
+            });
+
+            if (!user) {
+                return c.json({ error: "User not found" }, 404);
+            }
+
+            if (user.warehouseIds && user.warehouseIds.length > 0 && decoded.role === "manager") {
+                return c.json({ msg: "Warehouse IDs already exist in the user's warehouseIds array" });
+            }
+
+            const updatedWarehouseIds = [...user.warehouseIds, warehouse.id];
+
+            const userUpdate = await this.prisma.user.update({
+                where: {
+                    id: decoded.userId
+                },
+                data: {
+                    warehouseIds: updatedWarehouseIds
+                }
+            });
+
+            return c.json({ 
+                msg: "Warehouse added successfully", 
+                warehouse, 
+                userUpdate 
+            });
+
+        } catch (error) {
+            console.error('Error adding warehouse:', error);
+            return c.json({ error: 'Failed to add warehouse' }, 500);
+        }
+    }
 } 
