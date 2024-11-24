@@ -8,11 +8,14 @@ import warehouse  from './routes/warehouse'
 import deleteWarehouse from './routes/deleteWarehouse'
 import addProduct  from './routes/addProduct'
 import warehouseSales from './routes/warehouseSales'
+import salesRoutes from './routes/sales';
+
 const app = new Hono<{
     Bindings:{
         DATABASE_URL:String
     }
 }>()
+
 app.use('*',cors());
 app.route('/users',signin);
 app.route('/users',signup);
@@ -22,5 +25,7 @@ app.route('/',addWareshouse)
 app.route('/warehouse', warehouse)
 app.route('/',deleteWarehouse)
 app.route('/',addProduct)
-app.route('/',warehouseSales)
+app.route('/',warehouseSales);
+app.route('/',salesRoutes);
+
 export default app

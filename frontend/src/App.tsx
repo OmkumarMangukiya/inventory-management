@@ -8,6 +8,8 @@ import Warehouse from './pages/Warehouse';
 import AddProduct from './pages/AddProduct';
 import WarehouseSales from './pages/WarehouseSales';
 import Sidebar from './Components/Sidebar';
+import SalesHistory from './pages/SalesHistory';
+import SaleDetails from './pages/SaleDetails';
 
 function MainApp() {
   const location = useLocation();
@@ -27,6 +29,8 @@ function MainApp() {
           <Route path='/warehouse' element={<Warehouse />} />
           <Route path='/addproduct' element={<AddProduct />} />
           <Route path='/warehousesales' element={<WarehouseSales />} />
+          <Route path='/sales/history' element={<SalesHistory />} />
+          <Route path='/sales/:id' element={<SaleDetails />} />
         </Routes>
       </div>
     </div>

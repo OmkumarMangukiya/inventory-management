@@ -31,6 +31,7 @@ model product {
   expiry       DateTime
   createdAt    DateTime @default(now())
   warehouseIds String[] @default([])
+  sales        sale[] // Relation to sales
 }
 
 model warehouse {
@@ -39,4 +40,30 @@ model warehouse {
   location   String
   totalstock Int
   createdAt  DateTime @default(now())
+  sales      sale[] // Relation to sales
+}
+
+// New Sale model
+model sale {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
+  quantity      Int
+  totalAmount   Float
+  saleDate      DateTime @default(now())
+
+  // Relations
+  product     product   @relation(fields: [productId], references: [id])
+  productId   String
+  warehouse   warehouse @relation(fields: [warehouseId], references: [id])
+  warehouseId String
+
+  // Additional metadata
+  createdAt    DateTime @default(now())
+  productName  String // Denormalized for historical record
+  productPrice Float // Denormalized for historical record
+
+  // Indexes for better query performance
+  @@index([warehouseId])
+  @@index([productId])
+  @@index([saleDate])
 }

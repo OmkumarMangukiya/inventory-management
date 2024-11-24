@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, CheckCircle } from "lucide-react"
 
 interface productData {
   id: string
   name: string
   quantity : number
+  price: number
 }
 
 export default function WarehouseSales() {
@@ -15,52 +16,80 @@ export default function WarehouseSales() {
   const [error, setError] = useState<string | null>(null)
   const [productOptions, setProductOptions] = useState<productData[]>([]) 
   const [maxProductquantity , setMaxProductquantity] = useState<number| string>("")
+  const [success, setSuccess] = useState<string | null>(null);
 
   const navigate = useNavigate()
 
   const handleSales = async () => {
     try {
-      const warehouseId = localStorage.getItem("warehouseId")
-      if (!warehouseId) {
-        setError("Warehouse ID is missing")
-        return
-      }
-      if (!productName) {
-        setError("Please select a product")
-        return
-      }
-      if (!soldquantity || soldquantity === "") {
-        setError("Please enter quantity")
-        return
-      }
-      const quantity = parseInt(soldquantity as string)
-      if (isNaN(quantity) || quantity <= 0) {
-        setError("Please enter a valid quantity greater than 0")
-        return
-      }
-      if (quantity > Number(maxProductquantity)) {
-        setError(`Only ${maxProductquantity} units available`)
-        return
-      }
-      await axios.post(
-        "http://localhost:8787/warehouseSales",
-        {
-          productName,
-          soldquantity: quantity,
-        },
-        {
-          headers: {
-            warehouseId: warehouseId,
-          },
+        const warehouseId = localStorage.getItem("warehouseId");
+        if (!warehouseId) {
+            setError("Warehouse ID is missing");
+            return;
         }
-      )
-      setError(null)
-      navigate("/warehouse")
+
+        // Validate inputs
+        if (!productName) {
+            setError("Please select a product");
+            return;
+        }
+
+        if (!soldquantity) {
+            setError("Please enter quantity");
+            return;
+        }
+
+        // Find the product ID from productOptions
+        const selectedProduct = productOptions.find(p => p.name === productName);
+        if (!selectedProduct) {
+            setError("Product not found");
+            return;
+        }
+
+        const quantity = parseInt(soldquantity as string);
+        const totalAmount = quantity * selectedProduct.price;
+
+        console.log('Sending sale request:', {
+            productId: selectedProduct.id,
+            quantity,
+            totalAmount,
+            warehouseId
+        });
+
+        const response = await axios.post(
+            "http://localhost:8787/warehouseSales",
+            {
+                productId: selectedProduct.id,
+                quantity,
+                totalAmount
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'warehouseId': warehouseId
+                }
+            }
+        );
+
+        console.log('Sale response:', response.data);
+
+        if (response.data.message === 'Sale recorded successfully') {
+            setError(null);
+            setSuccess("Sale recorded successfully! Redirecting...");
+            setProductName("");
+            setSoldquantity("");
+            setMaxProductquantity("");
+            setTimeout(() => {
+                navigate("/sales/history");
+            }, 1500);
+        } else {
+            setError(response.data.error || "Failed to record sale. Please try again.");
+        }
     } catch (error: any) {
-      console.error("Error in submitting sales:", error)
-      setError(error.response?.data?.error || "Failed to submit sales. Please try again.")
+        console.error("Error in submitting sales:", error.response?.data || error);
+        setError(error.response?.data?.error || "Failed to submit sales. Please try again.");
     }
-  }
+  };
   const handleProductClick = async () => {
       const warehouseId = localStorage.getItem("warehouseId");
       const token = localStorage.getItem('token')
@@ -126,6 +155,14 @@ export default function WarehouseSales() {
             <div className="flex">
               <AlertCircle className="h-5 w-5 text-red-400" />
               <p className="ml-3 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+            <div className="flex">
+              <CheckCircle className="h-5 w-5 text-green-400" />
+              <p className="ml-3 text-sm text-green-700">{success}</p>
             </div>
           </div>
         )}

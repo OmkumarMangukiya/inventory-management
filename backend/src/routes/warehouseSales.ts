@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { SignatureKey } from "hono/utils/jwt/jws";
-import { WarehouseController } from "../controllers/WarehouseController";
+import { SalesController } from "../controllers/SalesController";
 
 const app = new Hono<{
     Bindings: {
@@ -10,8 +10,9 @@ const app = new Hono<{
 }>();
 
 app.post('/warehouseSales', async (c) => {
-    const warehouseController = new WarehouseController(c.env.DATABASE_URL, c.env.JWT_SECRET);
-    return await warehouseController.recordSales(c);
+    console.log('Received warehouseSales request');
+    const salesController = new SalesController(c.env.DATABASE_URL, c.env.JWT_SECRET);
+    return await salesController.createSale(c);
 });
 
 export default app;
