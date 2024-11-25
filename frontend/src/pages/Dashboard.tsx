@@ -49,7 +49,15 @@ const Dashboard: React.FC = () => {
     averageOrderValue: 0,
     totalProducts: 0
   });
-  const [profitData, setProfitData] = useState({
+  const [profitData, setProfitData] = useState<{
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      borderColor: string;
+      tension: number;
+    }[];
+  }>({
     labels: [],
     datasets: [
       {
