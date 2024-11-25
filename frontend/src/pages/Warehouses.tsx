@@ -70,7 +70,7 @@ const  Warehouses=()=> {
     : [];
 
   const handleOpenWarehouse = (warehouseId: string) => {
-    localStorage.setItem('selectedWarehouseId', warehouseId);
+    localStorage.setItem('warehouseId', warehouseId);
     navigate('/dashboard');
   };
 

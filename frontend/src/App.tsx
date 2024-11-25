@@ -19,9 +19,9 @@ function MainApp() {
   const hideSidebar = location.pathname === '/' || location.pathname === '/signup';
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div className="flex min-h-screen bg-black">
       {!hideSidebar && <Sidebar />}
-      <div style={{ flexGrow: 1, backgroundColor: 'black', margin: 0 }}>
+      <div className="flex-1 overflow-x-hidden">
         <Routes>
           <Route path='/' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />

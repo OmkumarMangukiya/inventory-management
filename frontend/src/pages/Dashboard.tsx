@@ -72,7 +72,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     // Get the selected warehouse ID from localStorage
-    const savedWarehouseId = localStorage.getItem('selectedWarehouseId');
+    const savedWarehouseId = localStorage.getItem('warehouseId');
     if (savedWarehouseId) {
       setSelectedWarehouse(savedWarehouseId);
     }
@@ -209,14 +209,14 @@ const Dashboard: React.FC = () => {
   }, [selectedWarehouse]);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen w-full overflow-y-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Dashboard</h1>
         <select
           value={selectedWarehouse}
           onChange={(e) => {
             setSelectedWarehouse(e.target.value);
-            localStorage.setItem('selectedWarehouseId', e.target.value);
+            localStorage.setItem('warehouseId', e.target.value);
           }}
           className="p-2 border rounded-md"
         >
@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Analytics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-gray-500">Total Revenue</h3>
           <p className="text-2xl font-bold">₹{stats.totalRevenue}</p>
