@@ -10,6 +10,7 @@ import WarehouseSales from './pages/WarehouseSales';
 import Sidebar from './Components/Sidebar';
 import SalesHistory from './pages/SalesHistory';
 import SaleDetails from './pages/SaleDetails';
+import Dashboard from './pages/Dashboard';
 
 function MainApp() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function MainApp() {
         <Routes>
           <Route path='/' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
+          <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/warehouses' element={<Warehouses />} />
           <Route path='/addwarehouse' element={<AddWarehouse />} />
           <Route path='/warehouse' element={<Warehouse />} />

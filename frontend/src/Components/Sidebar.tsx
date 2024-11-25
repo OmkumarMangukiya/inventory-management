@@ -77,6 +77,11 @@ export default function Sidebar() {
                 Sales History
               </Link>
             </li>
+            <li>
+              <Link to="/dashboard" className="sidebar-link">
+                Dashboard
+              </Link>
+            </li>
           </ul>
         )}
       </div>

@@ -69,10 +69,10 @@ const  Warehouses=()=> {
       )
     : [];
 
-  const handleOpenWarehouse = (id: string) => {
-    localStorage.setItem("warehouseId", id)
-    navigate(`/warehouse`)
-  }
+  const handleOpenWarehouse = (warehouseId: string) => {
+    localStorage.setItem('selectedWarehouseId', warehouseId);
+    navigate('/dashboard');
+  };
 
   const handleRemoveWarehouse = async (id: string) => {
     try {

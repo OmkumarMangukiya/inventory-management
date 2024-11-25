@@ -9,6 +9,7 @@ import deleteWarehouse from './routes/deleteWarehouse'
 import addProduct  from './routes/addProduct'
 import warehouseSales from './routes/warehouseSales'
 import salesRoutes from './routes/sales';
+import dashboard from './routes/dashboard';
 
 const app = new Hono<{
     Bindings:{
@@ -27,5 +28,6 @@ app.route('/',deleteWarehouse)
 app.route('/',addProduct)
 app.route('/',warehouseSales);
 app.route('/',salesRoutes);
+app.route('/dashboard',dashboard);
 
 export default app
