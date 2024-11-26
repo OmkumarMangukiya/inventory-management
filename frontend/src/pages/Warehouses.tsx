@@ -28,8 +28,9 @@ const  Warehouses=()=> {
   const fetchData = async () => {
     try {
       const roles = localStorage.getItem("role")
+      const token = localStorage.getItem("token")
       const response = await axios.get("http://localhost:8787/warehouses", {
-        headers: { role: roles },
+        headers: { role: roles, Authorization: `Bearer ${token}` },
       })
       setWarehouses(Array.isArray(response.data) ? response.data : [])
       setLoading(false)

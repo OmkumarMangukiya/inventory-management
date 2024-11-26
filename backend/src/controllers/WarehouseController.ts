@@ -19,7 +19,18 @@ export class WarehouseController {
 
     public getWarehouses = async (c: any) => {
         try {
-            const warehouses = await this.prisma.warehouse.findMany();
+            const token = c.req.header('Authorization')?.split(' ')[1];
+            const decoded = await verify(token, this.jwtSecret);
+            const userId = decoded.userId as string;
+            const warehouseIds = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { warehouseIds: true }
+            });
+            const warehouses = await this.prisma.warehouse.findMany({
+                where: {
+                    id: { in: warehouseIds?.warehouseIds }
+                }
+            });
             if (warehouses.length === 0) {
                 console.log('No warehouses found.');
             }
