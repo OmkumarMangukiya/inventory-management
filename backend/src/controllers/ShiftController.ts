@@ -2,15 +2,6 @@ import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { Context } from 'hono';
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    expiry: Date;
-    warehouseIds: string[];
-}
-
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
 export class ShiftController {
@@ -31,8 +22,7 @@ export class ShiftController {
         const targetWarehouseId = c.req.header('targetWarehouseId');
 
         if (!sourceWarehouseId || !targetWarehouseId) {
-            c.status(400);
-            return c.json({ error: 'Source and target warehouse IDs are required' });
+            return c.json({ error: 'Source and target warehouse IDs are required' }, 400);
         }
 
         try {
@@ -40,8 +30,7 @@ export class ShiftController {
             const { name, quantity } = body;
 
             if (!name || !quantity || quantity <= 0) {
-                c.status(400);
-                return c.json({ error: 'Valid product name and quantity are required' });
+                return c.json({ error: 'Valid product name and quantity are required' }, 400);
             }
 
             // Find source product
@@ -53,60 +42,69 @@ export class ShiftController {
             });
 
             if (!sourceProduct) {
-                c.status(404);
-                return c.json({ error: `Product "${name}" not found in source warehouse` });
+                return c.json({ error: `Product "${name}" not found in source warehouse` }, 404);
             }
 
             if (sourceProduct.quantity < quantity) {
-                c.status(400);
                 return c.json({ 
                     error: `Insufficient quantity. Available: ${sourceProduct.quantity}, Requested: ${quantity}` 
-                });
+                }, 400);
             }
 
-            // Execute transaction
-            const result = await this.prisma.$transaction(async (tx: TransactionClient) => {
+            // Execute the shift operation in a transaction
+            const result = await this.prisma.$transaction(async (tx) => {
                 // Update source product
-                const updatedSourceProduct = await tx.product.update({
-                    where: { id: sourceProduct.id },
-                    data: {
-                        quantity: sourceProduct.quantity - quantity,
-                        warehouseIds: sourceProduct.quantity === quantity 
-                            ? sourceProduct.warehouseIds.filter(id => id !== sourceWarehouseId)
-                            : sourceProduct.warehouseIds
-                    }
-                });
+                const remainingQuantity = sourceProduct.quantity - quantity;
+                let updatedSourceProduct;
+
+                if (remainingQuantity === 0) {
+                    // If no quantity remains, remove the warehouse ID from the product
+                    updatedSourceProduct = await tx.product.update({
+                        where: { id: sourceProduct.id },
+                        data: {
+                            quantity: 0,
+                            warehouseIds: {
+                                set: sourceProduct.warehouseIds.filter(id => id !== sourceWarehouseId)
+                            }
+                        }
+                    });
+                } else {
+                    // Update quantity only
+                    updatedSourceProduct = await tx.product.update({
+                        where: { id: sourceProduct.id },
+                        data: {
+                            quantity: remainingQuantity
+                        }
+                    });
+                }
 
                 // Update source warehouse stock
                 await tx.warehouse.update({
                     where: { id: sourceWarehouseId },
                     data: {
-                        totalstock: {
-                            decrement: quantity
-                        }
+                        totalstock: { decrement: quantity }
                     }
                 });
 
-                // Find target product
-                const targetProduct = await tx.product.findFirst({
+                // Find or create target product
+                let targetProduct = await tx.product.findFirst({
                     where: {
                         name,
                         warehouseIds: { has: targetWarehouseId }
                     }
                 });
 
-                let updatedTargetProduct;
                 if (targetProduct) {
                     // Update existing product
-                    updatedTargetProduct = await tx.product.update({
+                    targetProduct = await tx.product.update({
                         where: { id: targetProduct.id },
                         data: {
-                            quantity: targetProduct.quantity + quantity
+                            quantity: { increment: quantity }
                         }
                     });
                 } else {
-                    // Create new product
-                    updatedTargetProduct = await tx.product.create({
+                    // Create new product entry
+                    targetProduct = await tx.product.create({
                         data: {
                             name: sourceProduct.name,
                             price: sourceProduct.price,
@@ -121,17 +119,19 @@ export class ShiftController {
                 await tx.warehouse.update({
                     where: { id: targetWarehouseId },
                     data: {
-                        totalstock: {
-                            increment: quantity
-                        }
+                        totalstock: { increment: quantity }
                     }
                 });
 
-                return {
-                    sourceProduct: updatedSourceProduct,
-                    targetProduct: updatedTargetProduct
-                };
+                return { sourceProduct: updatedSourceProduct, targetProduct };
             });
+
+            // Clean up if needed
+            if (result.sourceProduct.quantity === 0 && result.sourceProduct.warehouseIds.length === 0) {
+                await this.prisma.product.delete({
+                    where: { id: result.sourceProduct.id }
+                });
+            }
 
             return c.json({
                 message: 'Product shifted successfully',
@@ -145,19 +145,17 @@ export class ShiftController {
                     },
                     target: {
                         warehouseId: targetWarehouseId,
-                        previousQuantity: result.targetProduct.quantity - quantity,
                         currentQuantity: result.targetProduct.quantity
                     }
                 }
             });
 
-        } catch (error: unknown) {
+        } catch (error) {
             console.error('Error in shiftProduct:', error);
-            c.status(500);
             return c.json({ 
                 error: 'Failed to shift product',
                 details: error instanceof Error ? error.message : 'Unknown error'
-            });
+            }, 500);
         }
     }
 } 

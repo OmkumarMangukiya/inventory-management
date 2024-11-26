@@ -7,37 +7,78 @@ export class WarehouseController {
     private prisma: PrismaClient;
 
     constructor(databaseUrl: string, private jwtSecret: SignatureKey) {
-        this.prisma = new PrismaClient({
+        const prismaClient = new PrismaClient({
             datasources: {
                 db: {
                     url: databaseUrl
                 }
             }
         });
-        this.prisma.$extends(withAccelerate());
+        this.prisma = prismaClient.$extends(withAccelerate()) as unknown as PrismaClient;
     }
 
     public getWarehouses = async (c: any) => {
         try {
-            const token = c.req.header('Authorization')?.split(' ')[1];
-            const decoded = await verify(token, this.jwtSecret);
-            const userId = decoded.userId as string;
-            const warehouseIds = await this.prisma.user.findUnique({
-                where: { id: userId },
-                select: { warehouseIds: true }
-            });
-            const warehouses = await this.prisma.warehouse.findMany({
-                where: {
-                    id: { in: warehouseIds?.warehouseIds }
-                }
-            });
-            if (warehouses.length === 0) {
-                console.log('No warehouses found.');
+            const authHeader = c.req.header('Authorization');
+            const role = c.req.header('role');
+
+            console.log('Auth Header:', authHeader); // Debug log
+            console.log('Role:', role); // Debug log
+
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return c.json({ error: 'No token provided or invalid format' }, 401);
             }
-            return c.json(warehouses);
+
+            const token = authHeader.split(' ')[1];
+
+            if (!token) {
+                return c.json({ error: 'Token is missing' }, 401);
+            }
+
+            try {
+                const decoded = await verify(token, this.jwtSecret) as { userId: string };
+                console.log('Decoded token:', decoded); // Debug log
+
+                if (!decoded.userId) {
+                    return c.json({ error: 'Invalid token payload' }, 401);
+                }
+
+                if (role === 'owner') {
+                    const user = await this.prisma.user.findUnique({
+                        where: { id: decoded.userId },
+                        select: { warehouseIds: true }
+                    });
+
+                    if (!user) {
+                        return c.json({ error: 'User not found' }, 404);
+                    }
+
+                    const warehouses = await this.prisma.warehouse.findMany({
+                        where: {
+                            id: { in: user.warehouseIds }
+                        }
+                    });
+
+                    return c.json(warehouses);
+                }
+
+                // For admin role, return all warehouses
+                const warehouses = await this.prisma.warehouse.findMany();
+                return c.json(warehouses);
+
+            } catch (verifyError) {
+                console.error('Token verification failed:', verifyError);
+                return c.json({ 
+                    error: 'Invalid token',
+                    details: verifyError instanceof Error ? verifyError.message : 'Unknown error'
+                }, 401);
+            }
         } catch (error) {
-            console.error('Error fetching warehouses:', error);
-            return c.json({ error: 'Error fetching warehouses' }, 500);
+            console.error('Error in getWarehouses:', error);
+            return c.json({ 
+                error: 'Failed to fetch warehouses',
+                details: error instanceof Error ? error.message : 'Unknown error'
+            }, 500);
         }
     }
 

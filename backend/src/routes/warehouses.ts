@@ -9,7 +9,7 @@ const app = new Hono<{
     }
 }>();
 
-app.get('warehouses', async (c) => {
+app.get('/', async (c) => {
     const warehouseController = new WarehouseController(c.env.DATABASE_URL, c.env.JWT_SECRET);
     return await warehouseController.getWarehouses(c);
 });

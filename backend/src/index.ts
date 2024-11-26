@@ -10,6 +10,7 @@ import addProduct from './routes/addProduct'
 import warehouseSales from './routes/warehouseSales'
 import salesRoutes from './routes/sales'
 import shiftProduct from './routes/shiftProduct'
+import dashboard from './routes/dashboard'
 
 const app = new Hono<{
     Bindings:{
@@ -22,13 +23,14 @@ app.use('*', cors());
 app.route('/users', signin);
 app.route('/users', signup);
 app.route('/users', role);
-app.route('/', warehouses);
+app.route('/warehouses', warehouses);
 app.route('/', addWareshouse);
 app.route('/warehouse', warehouse);
-app.route('/warehouses', deleteWarehouse);
+app.route('/', deleteWarehouse);
 app.route('/', addProduct);
 app.route('/', warehouseSales);
 app.route('/', salesRoutes);
 app.route('/warehouse', shiftProduct);
+app.route('/dashboard', dashboard);
 
 export default app

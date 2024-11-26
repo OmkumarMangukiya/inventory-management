@@ -25,13 +25,13 @@ model user {
 
 model product {
   id           String   @id @default(cuid())
-  name         String   @unique
+  name         String
   price        Int
   quantity     Int
   expiry       DateTime
   createdAt    DateTime @default(now())
   warehouseIds String[] @default([])
-  sales        sale[] // Relation to sales
+  sales        sale[]
 }
 
 model warehouse {

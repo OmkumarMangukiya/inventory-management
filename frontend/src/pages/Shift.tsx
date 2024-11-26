@@ -35,10 +35,27 @@ export default function Shift() {
     const fetchWarehouses = async () => {
       try {
         const token = localStorage.getItem("token");
+        const roles = localStorage.getItem("role");
+        
+        if (!token) {
+          setError("Authentication token missing");
+          return;
+        }
+
         const response = await axios.get("http://localhost:8787/warehouses", {
-          headers: { token }
+          headers: { 
+            'Authorization': `Bearer ${token}`,  // Changed from token to Bearer token
+            'Content-Type': 'application/json',
+            'role': roles || ''
+          }
         });
-        setWarehouses(response.data);
+
+        if (response.data) {
+          console.log('Fetched warehouses:', response.data); // Debug log
+          setWarehouses(response.data);
+        } else {
+          setError("No warehouses data received");
+        }
       } catch (err) {
         console.error("Error fetching warehouses:", err);
         setError("Failed to load warehouses");

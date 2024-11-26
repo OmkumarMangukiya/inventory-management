@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { auth } from "../../../backend/src/routes/auth"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { SearchIcon, PlusIcon } from "lucide-react"
+import { SearchIcon, PlusIcon, ArrowRightLeft } from "lucide-react"
 
 interface Product {
   id: string
@@ -60,6 +60,17 @@ export default function Warehouse() {
     fetchData()
   }, [])
 
+  const handleShiftProduct = (product: Product) => {
+    navigate('/shift', { 
+      state: { 
+        productDetails: {
+          name: product.name,
+          quantity: product.quantity
+        }
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-white text-gray-900">
@@ -76,6 +87,7 @@ export default function Warehouse() {
       </div>
     );
   }
+
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(filterText.toLowerCase())
   )
@@ -86,22 +98,20 @@ export default function Warehouse() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Warehouse Products</h1>
           <div className="flex gap-x-4">
-          <button
-            onClick={() => navigate("/warehouseSales")}
-            className="bg-white text-blue-500 px-6 py-2 rounded-lg hover:text-blue-600 shadow-lg hover:shadow-xl hover:shadow-gray-400 font-medium transition duration-300"
-          >
-            Sell
-          </button>
-          <button
-            onClick={() => navigate("/addproduct")}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg hover:shadow-gray-400 flex items-center hover:bg-blue-700 transition duration-300"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Add Product
-          </button>
-          {/* <div className="mt-6 text-right"> */}
-          
-        </div>
+            <button
+              onClick={() => navigate("/warehouseSales")}
+              className="bg-white text-blue-500 px-6 py-2 rounded-lg hover:text-blue-600 shadow-lg hover:shadow-xl hover:shadow-gray-400 font-medium transition duration-300"
+            >
+              Sell
+            </button>
+            <button
+              onClick={() => navigate("/addproduct")}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg hover:shadow-gray-400 flex items-center hover:bg-blue-700 transition duration-300"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Add Product
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -124,7 +134,9 @@ export default function Warehouse() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   quantity
                 </th>
@@ -133,6 +145,9 @@ export default function Warehouse() {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total Expense
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -153,11 +168,20 @@ export default function Warehouse() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       ₹{(product.price * product.quantity).toFixed(2)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button
+                        onClick={() => handleShiftProduct(product)}
+                        className="text-indigo-600 hover:text-indigo-900 flex items-center"
+                      >
+                        <ArrowRightLeft className="w-4 h-4 mr-1" />
+                        Shift
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
                     No products found. Click "Add Product" to add your first product.
                   </td>
                 </tr>
@@ -165,8 +189,6 @@ export default function Warehouse() {
             </tbody>
           </table>
         </div>
-
-        
       </div>
     </div>
   )

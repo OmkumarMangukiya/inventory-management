@@ -11,6 +11,8 @@ import Sidebar from './Components/Sidebar';
 import SalesHistory from './pages/SalesHistory';
 import SaleDetails from './pages/SaleDetails';
 import Shift from './pages/Shift';
+import Dashboard from './pages/Dashboard';
+
 function MainApp() {
   const location = useLocation();
   const hideSidebar = location.pathname === '/' || location.pathname === '/signup';
@@ -29,6 +31,7 @@ function MainApp() {
           <Route path='/sales/history' element={<SalesHistory />} />
           <Route path='/sales/:id' element={<SaleDetails />} />
           <Route path='/shift' element={<Shift />} />
+          <Route path='/dashboard' element={<Dashboard />} />
         </Routes>
       </div>
     </div>

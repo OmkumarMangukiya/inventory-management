@@ -144,11 +144,10 @@ const Dashboard: React.FC = () => {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:8787/sales/history`, {
+        const response = await fetch(`http://localhost:8787/dashboard/profits?warehouseId=${selectedWarehouse}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'warehouseId': selectedWarehouse
+            'Content-Type': 'application/json'
           }
         });
 
