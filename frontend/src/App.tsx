@@ -10,22 +10,17 @@ import WarehouseSales from './pages/WarehouseSales';
 import Sidebar from './Components/Sidebar';
 import SalesHistory from './pages/SalesHistory';
 import SaleDetails from './pages/SaleDetails';
-import Dashboard from './pages/Dashboard';
-
+import Shift from './pages/Shift';
 function MainApp() {
   const location = useLocation();
-
-  // Check if the current route is sign-in or sign-up
   const hideSidebar = location.pathname === '/' || location.pathname === '/signup';
-
   return (
-    <div className="flex min-h-screen bg-black">
+    <div style={{ display: 'flex', height: '100vh' }}>
       {!hideSidebar && <Sidebar />}
-      <div className="flex-1 overflow-x-hidden">
+      <div style={{ flexGrow: 1, backgroundColor: 'black', margin: 0 }}>
         <Routes>
           <Route path='/' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
-          <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/warehouses' element={<Warehouses />} />
           <Route path='/addwarehouse' element={<AddWarehouse />} />
           <Route path='/warehouse' element={<Warehouse />} />
@@ -33,6 +28,7 @@ function MainApp() {
           <Route path='/warehousesales' element={<WarehouseSales />} />
           <Route path='/sales/history' element={<SalesHistory />} />
           <Route path='/sales/:id' element={<SaleDetails />} />
+          <Route path='/shift' element={<Shift />} />
         </Routes>
       </div>
     </div>
