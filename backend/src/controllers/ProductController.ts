@@ -12,93 +12,102 @@ export class ProductController {
                     url: databaseUrl
                 }
             }
-        });
-        this.prisma.$extends(withAccelerate());
+        }).$extends(withAccelerate()) as unknown as PrismaClient;
     }
 
     public addProduct = async (c: any) => {
-        const warehouseId = c.req.header('warehouseId');
-        if (!warehouseId) {
-            c.status(400);
-            return c.json({ error: 'Warehouse ID is required' });
-        }
-
-        const token = c.req.header('token');
-        if (!token) {
-            c.status(401);
-            return c.json({ error: 'Unauthorized' });
-        }
-
-        const user = verify(token, c.env.JWT_SECRET);
-        if (!user) {
-            c.status(401);
-            return c.json({ error: 'Unauthorized' });
-        }
-
-        const body = await c.req.json();
-        const { date } = body;
-
-        // Log the received expiry date
-        console.log('Received expiry date:', date);
-
-        const parsedExpiry = new Date(date);
-        if (isNaN(parsedExpiry.getTime())) {
-            c.status(400);
-            return c.json({ error: 'Invalid expiry date' });
-        }
-
-        const productExist = await this.prisma.product.findFirst({
-            where: {
-                name: body.name,
-                warehouseIds: {
-                    has: warehouseId
-                }
+        try {
+            const warehouseId = c.req.header('warehouseId');
+            if (!warehouseId) {
+                return c.json({ error: 'Warehouse ID is required' }, 400);
             }
-        });
 
-        if (productExist) {
-            const quan = productExist.quantity + body.quantity;
+            const token = c.req.header('token');
+            if (!token) {
+                return c.json({ error: 'Unauthorized' }, 401);
+            }
 
-            const product = await this.prisma.product.update({
-                where: {
-                    id: productExist.id
-                },
-                data: {
-                    quantity: quan
-                }
+            const user = verify(token, c.env.JWT_SECRET);
+            if (!user) {
+                return c.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // First check if warehouse exists
+            const warehouse = await this.prisma.warehouse.findUnique({
+                where: { id: warehouseId }
             });
-            await this.prisma.warehouse.update({
-                where: {
-                    id: warehouseId
-                },
-                data: {
-                    totalstock: {
-                        increment: body.quantity
+
+            if (!warehouse) {
+                return c.json({ error: `Warehouse with ID ${warehouseId} not found` }, 404);
+            }
+
+            const body = await c.req.json();
+            const { name, price, quantity, date } = body;
+
+            if (!name || !price || !quantity || !date) {
+                return c.json({ error: 'All fields are required' }, 400);
+            }
+
+            console.log('Received expiry date:', date);
+            const parsedExpiry = new Date(date);
+            
+            if (isNaN(parsedExpiry.getTime())) {
+                return c.json({ error: 'Invalid expiry date' }, 400);
+            }
+
+            return await this.prisma.$transaction(async (tx) => {
+                // Check if product exists in this warehouse
+                const existingProduct = await tx.product.findFirst({
+                    where: {
+                        name,
+                        warehouseIds: { has: warehouseId }
                     }
+                });
+
+                let product;
+                if (existingProduct) {
+                    // Update existing product
+                    product = await tx.product.update({
+                        where: { id: existingProduct.id },
+                        data: {
+                            quantity: existingProduct.quantity + quantity
+                        }
+                    });
+                } else {
+                    // Create new product
+                    product = await tx.product.create({
+                        data: {
+                            name,
+                            price,
+                            quantity,
+                            expiry: parsedExpiry,
+                            warehouseIds: [warehouseId]
+                        }
+                    });
                 }
-            });
-            return c.json({ message: 'Warehouse ID already exists in the product and updated', product });
-        } else {
-            const product = await this.prisma.product.create({
-                data: {
-                    name: body.name,
-                    price: body.price,
-                    quantity: body.quantity,
-                    expiry: parsedExpiry,
-                    warehouseIds: [warehouseId]
-                }
-            });
-            await this.prisma.warehouse.update({
-                where: {
-                    id: warehouseId
-                },
-                data: {
-                    totalstock: {
-                        increment: body.quantity
+
+                // Update warehouse stock
+                await tx.warehouse.update({
+                    where: { id: warehouseId },
+                    data: {
+                        totalstock: {
+                            increment: quantity
+                        }
                     }
-                }
+                });
+
+                return c.json({
+                    message: existingProduct ? 'Product updated successfully' : 'Product added successfully',
+                    product
+                });
             });
-            return c.json({ message: 'Product added successfully', product });
+
+        } catch (error) {
+            console.error('Error in addProduct:', error);
+            return c.json({
+                error: 'Failed to add/update product',
+                details: error instanceof Error ? error.message : 'Unknown error'
+            }, 500);
         }
     }
 } 

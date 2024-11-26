@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { auth } from "../../../backend/src/routes/auth"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { SearchIcon, PlusIcon, ArrowRightLeft } from "lucide-react"
+import { SearchIcon, PlusIcon, ArrowRightLeft, Clock } from "lucide-react"
 
 interface Product {
   id: string
@@ -71,6 +71,15 @@ export default function Warehouse() {
     });
   };
 
+  // Calculate days until expiry for a product
+  const getDaysUntilExpiry = (expiryDate: Date) => {
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-white text-gray-900">
@@ -98,6 +107,13 @@ export default function Warehouse() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Warehouse Products</h1>
           <div className="flex gap-x-4">
+            <button
+              onClick={() => navigate("/expired-products")}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:shadow-lg hover:shadow-gray-400 flex items-center hover:bg-red-700 transition duration-300"
+            >
+              <Clock className="w-5 h-5 mr-2" />
+              Expired Products
+            </button>
             <button
               onClick={() => navigate("/warehouseSales")}
               className="bg-white text-blue-500 px-6 py-2 rounded-lg hover:text-blue-600 shadow-lg hover:shadow-xl hover:shadow-gray-400 font-medium transition duration-300"
@@ -147,41 +163,56 @@ export default function Warehouse() {
                   Total Expense
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Expiry Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <tr key={product.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{product.price.toFixed(2)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.quantity} units</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(product.expiry).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ₹{(product.price * product.quantity).toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button
-                        onClick={() => handleShiftProduct(product)}
-                        className="text-indigo-600 hover:text-indigo-900 flex items-center"
-                      >
-                        <ArrowRightLeft className="w-4 h-4 mr-1" />
-                        Shift
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                filteredProducts.map((product) => {
+                  const daysUntilExpiry = getDaysUntilExpiry(product.expiry);
+                  const isNearExpiry = daysUntilExpiry <= 30; // Warning for products expiring within 30 days
+
+                  return (
+                    <tr key={product.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{product.price.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.quantity} units</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(product.expiry).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ₹{(product.price * product.quantity).toFixed(2)}
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                        daysUntilExpiry <= 0 ? 'text-red-600' : 
+                        isNearExpiry ? 'text-yellow-600' : 'text-green-600'
+                      }`}>
+                        {daysUntilExpiry <= 0 ? 'Expired' :
+                         `Expires in ${daysUntilExpiry} days`}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => handleShiftProduct(product)}
+                          className="text-indigo-600 hover:text-indigo-900 flex items-center mr-2"
+                        >
+                          <ArrowRightLeft className="w-4 h-4 mr-1" />
+                          Shift
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
                     No products found. Click "Add Product" to add your first product.
                   </td>
                 </tr>

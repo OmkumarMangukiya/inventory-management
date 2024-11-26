@@ -35,12 +35,24 @@ model product {
 }
 
 model warehouse {
-  id         String   @id @default(cuid())
-  name       String
-  location   String
-  totalstock Int
-  createdAt  DateTime @default(now())
-  sales      sale[] // Relation to sales
+  id              String           @id @default(cuid())
+  name            String
+  location        String
+  totalstock      Int
+  createdAt       DateTime         @default(now())
+  sales           sale[]
+  expiredProducts expiredProduct[]
+}
+
+model expiredProduct {
+  id          String    @id @default(cuid())
+  name        String
+  price       Int
+  quantity    Int
+  expiry      DateTime
+  expiredAt   DateTime  @default(now())
+  warehouseId String
+  warehouse   warehouse @relation(fields: [warehouseId], references: [id])
 }
 
 // New Sale model
