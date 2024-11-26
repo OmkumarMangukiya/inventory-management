@@ -12,7 +12,6 @@ import SalesHistory from './pages/SalesHistory';
 import SaleDetails from './pages/SaleDetails';
 import Shift from './pages/Shift';
 import Dashboard from './pages/Dashboard';
-import ExpiredProducts from './pages/ExpiredProducts';
 
 function MainApp() {
   const location = useLocation();
@@ -33,7 +32,6 @@ function MainApp() {
           <Route path='/sales/:id' element={<SaleDetails />} />
           <Route path='/shift' element={<Shift />} />
           <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/expired-products' element={<ExpiredProducts />} />
         </Routes>
       </div>
     </div>

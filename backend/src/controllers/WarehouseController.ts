@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { SignatureKey } from 'hono/utils/jwt/jws';
 import { verify } from 'hono/utils/jwt/jwt';
-import { Context } from 'hono';
 
 export class WarehouseController {
     private prisma: PrismaClient;
@@ -212,14 +211,11 @@ export class WarehouseController {
         const warehouseId = c.req.header('warehouseId');
         
         if (!warehouseId) {
-            return c.json({ error: "warehouseId is required" }, 400);
+            c.status(400);
+            return c.json({ error: "warehouseId is required" });
         }
 
         try {
-            // Check and move expired products first
-            await this.checkAndMoveExpiredProducts(warehouseId);
-
-            // Then get remaining products
             const products = await this.prisma.product.findMany({
                 where: {
                     warehouseIds: {
@@ -228,10 +224,11 @@ export class WarehouseController {
                 }
             });
 
-            return c.json(products);
+            // Always return an array, even if empty
+            return c.json(products || []);
         } catch (error) {
             console.error('Error fetching warehouse products:', error);
-            return c.json({ error: 'Failed to fetch products' }, 500);
+            return c.json([]); // Return empty array on error
         }
     }
 
@@ -303,110 +300,6 @@ export class WarehouseController {
         } catch (error) {
             console.error('Error adding warehouse:', error);
             return c.json({ error: 'Failed to add warehouse' }, 500);
-        }
-    }
-
-    public getExpiredProducts = async (c: Context) => {
-        try {
-            const token = c.req.header('Authorization')?.split(' ')[1];
-            const warehouseId = c.req.header('warehouseId');
-
-            if (!token) {
-                return c.json({ error: 'No token provided' }, 401);
-            }
-
-            const decoded = await verify(token, this.jwtSecret) as { userId: string };
-
-            // First check for any new expired products
-            await this.checkAndMoveExpiredProducts(warehouseId!);
-
-            // Then fetch all expired products
-            const expiredProducts = await this.prisma.expiredProduct.findMany({
-                where: {
-                    warehouseId: warehouseId
-                },
-                include: {
-                    warehouse: {
-                        select: {
-                            name: true
-                        }
-                    }
-                },
-                orderBy: {
-                    expiredAt: 'desc'
-                }
-            });
-
-            return c.json(expiredProducts);
-        } catch (error) {
-            console.error('Error fetching expired products:', error);
-            return c.json({ 
-                error: 'Failed to fetch expired products',
-                details: error instanceof Error ? error.message : 'Unknown error'
-            }, 500);
-        }
-    }
-
-    private async checkAndMoveExpiredProducts(warehouseId: string) {
-        try {
-            const today = new Date();
-            
-            // Find all expired products in the warehouse
-            const expiredProducts = await this.prisma.product.findMany({
-                where: {
-                    warehouseIds: { has: warehouseId },
-                    expiry: { lt: today }
-                }
-            });
-
-            // Move each expired product to expiredProduct table
-            for (const product of expiredProducts) {
-                await this.prisma.$transaction(async (tx) => {
-                    // Create entry in expiredProduct table
-                    await tx.expiredProduct.create({
-                        data: {
-                            name: product.name,
-                            price: product.price,
-                            quantity: product.quantity,
-                            expiry: product.expiry,
-                            warehouseId: warehouseId
-                        }
-                    });
-
-                    // Update warehouse stock
-                    await tx.warehouse.update({
-                        where: { id: warehouseId },
-                        data: {
-                            totalstock: {
-                                decrement: product.quantity
-                            }
-                        }
-                    });
-
-                    // Remove the warehouse ID from the product's warehouseIds
-                    const updatedWarehouseIds = product.warehouseIds.filter(id => id !== warehouseId);
-                    
-                    if (updatedWarehouseIds.length === 0) {
-                        // If no warehouses left, delete the product
-                        await tx.product.delete({
-                            where: { id: product.id }
-                        });
-                    } else {
-                        // Update the product's warehouseIds
-                        await tx.product.update({
-                            where: { id: product.id },
-                            data: {
-                                warehouseIds: updatedWarehouseIds
-                            }
-                        });
-                    }
-                });
-            }
-
-            return expiredProducts.length;
-        } catch (error) {
-            console.error('Error checking expired products:', error);
-            return 0;
         }
     }
 } 

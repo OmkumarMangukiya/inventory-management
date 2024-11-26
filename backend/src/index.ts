@@ -11,7 +11,6 @@ import warehouseSales from './routes/warehouseSales'
 import salesRoutes from './routes/sales'
 import shiftProduct from './routes/shiftProduct'
 import dashboard from './routes/dashboard'
-import expiredProducts from './routes/expiredProducts'
 
 const app = new Hono<{
     Bindings:{
@@ -27,12 +26,11 @@ app.route('/users', role);
 app.route('/warehouses', warehouses);
 app.route('/', addWareshouse);
 app.route('/warehouse', warehouse);
-app.route('/warehouses', deleteWarehouse);
+app.route('/', deleteWarehouse);
 app.route('/', addProduct);
 app.route('/', warehouseSales);
 app.route('/', salesRoutes);
 app.route('/warehouse', shiftProduct);
 app.route('/dashboard', dashboard);
-app.route('/warehouse/expired-products', expiredProducts);
 
 export default app
