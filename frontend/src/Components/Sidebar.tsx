@@ -30,8 +30,8 @@ export default function Sidebar() {
       className={`transition-all duration-300 ${
         isCollapsed 
           ? "bg-[#1F2937] w-14 h-14" 
-          : "bg-gray-800 w-80 h-screen"
-      } p-4 m-0 font-bold flex flex-col gap-4 overflow-hidden`}
+          : "bg-gray-800 w-80 min-h-screen"
+      } p-4 m-0 font-bold flex flex-col gap-4 overflow-hidden fixed`}
     >
       <div className="flex gap-2 items-center justify-between">
         {!isCollapsed && <h4 className="m-0 text-gray-200">Navigation</h4>}
@@ -78,7 +78,7 @@ export default function Sidebar() {
               </Link>
             </li>
             <li>
-              <Link to="/dashboard" className="sidebar-link">
+              <Link to="/dashboard" className="sidebar-link text-gray-300 no-underline hover:text-white">
                 Dashboard
               </Link>
             </li>

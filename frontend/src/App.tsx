@@ -12,6 +12,7 @@ import SalesHistory from './pages/SalesHistory';
 import SaleDetails from './pages/SaleDetails';
 import Shift from './pages/Shift';
 import Dashboard from './pages/Dashboard';
+import ExpiredProducts from './pages/ExpiredProducts';
 
 function MainApp() {
   const location = useLocation();
@@ -19,7 +20,12 @@ function MainApp() {
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       {!hideSidebar && <Sidebar />}
-      <div style={{ flexGrow: 1, backgroundColor: 'black', margin: 0 }}>
+      <div style={{ 
+        flexGrow: 1, 
+        backgroundColor: 'black', 
+        margin: 0,
+        marginLeft: hideSidebar ? 0 : '56px'
+      }}>
         <Routes>
           <Route path='/' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
@@ -32,6 +38,7 @@ function MainApp() {
           <Route path='/sales/:id' element={<SaleDetails />} />
           <Route path='/shift' element={<Shift />} />
           <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/expired-products' element={<ExpiredProducts />} />
         </Routes>
       </div>
     </div>
