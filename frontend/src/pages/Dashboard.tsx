@@ -71,16 +71,16 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get the selected warehouse ID from localStorage
+    
     const savedWarehouseId = localStorage.getItem('warehouseId');
     if (savedWarehouseId) {
       setSelectedWarehouse(savedWarehouseId);
     }
   }, []);
 
-  // Function to process sales data for the chart
+  
   const processChartData = (salesData: SaleData[]) => {
-    // Group sales by date and sum the total amounts
+    
     const dailySales = salesData.reduce((acc: { [key: string]: number }, sale) => {
       const date = new Date(sale.saleDate).toLocaleDateString();
       acc[date] = (acc[date] || 0) + sale.totalAmount;
