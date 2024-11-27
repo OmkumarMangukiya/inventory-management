@@ -1,7 +1,5 @@
-'use client'
-
-import React, { useEffect, useState } from 'react'
-import { Line } from 'react-chartjs-2'
+import React, { useEffect, useState } from 'react';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,8 +9,8 @@ import {
   Title,
   Tooltip,
   Legend
-} from 'chart.js'
-import { useNavigate } from 'react-router-dom'
+} from 'chart.js';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
   CategoryScale,
@@ -22,179 +20,193 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend
-)
+);
 
 interface DashboardStats {
-  totalRevenue: number
-  ordersProcessed: number
-  averageOrderValue: number
-  totalProducts: number
+  totalRevenue: number;
+  ordersProcessed: number;
+  averageOrderValue: number;
+  totalProducts: number;
 }
 
 interface WarehouseData {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface SaleData {
-  saleDate: string
-  totalAmount: number
+  saleDate: string;
+  totalAmount: number;
+  quantity: number;
 }
 
 const Dashboard: React.FC = () => {
-  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('')
-  const [warehouses, setWarehouses] = useState<WarehouseData[]>([])
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
+  const [warehouses, setWarehouses] = useState<WarehouseData[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalRevenue: 0,
     ordersProcessed: 0,
     averageOrderValue: 0,
     totalProducts: 0
-  })
-  const [profitData, setProfitData] = useState({
-    labels: [] as string[],
+  });
+  const [profitData, setProfitData] = useState<{
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      borderColor: string;
+      tension: number;
+    }[];
+  }>({
+    labels: [],
     datasets: [
       {
-        label: 'Daily Sales (₹)',
-        data: [] as number[],
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: 'rgb(59, 130, 246)',
-        pointBorderColor: '#fff',
-        pointHoverRadius: 6,
-        pointHoverBackgroundColor: 'rgb(59, 130, 246)',
-        pointHoverBorderColor: '#fff'
+        label: 'Daily Sales',
+        data: [],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
       }
     ]
-  })
-  const navigate = useNavigate()
+  });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const savedWarehouseId = localStorage.getItem('warehouseId')
+    // Get the selected warehouse ID from localStorage
+    const savedWarehouseId = localStorage.getItem('warehouseId');
     if (savedWarehouseId) {
-      setSelectedWarehouse(savedWarehouseId)
+      setSelectedWarehouse(savedWarehouseId);
     }
-  }, [])
+  }, []);
 
+  // Function to process sales data for the chart
   const processChartData = (salesData: SaleData[]) => {
+    // Group sales by date and sum the total amounts
     const dailySales = salesData.reduce((acc: { [key: string]: number }, sale) => {
-      const date = new Date(sale.saleDate).toLocaleDateString()
-      acc[date] = (acc[date] || 0) + sale.totalAmount
-      return acc
-    }, {})
+      const date = new Date(sale.saleDate).toLocaleDateString();
+      acc[date] = (acc[date] || 0) + sale.totalAmount;
+      return acc;
+    }, {});
 
+    // Get the last 7 days of data
     const last7Days = [...Array(7)].map((_, i) => {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      return d.toLocaleDateString()
-    }).reverse()
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toLocaleDateString();
+    }).reverse();
 
-    setProfitData({
+    // Create chart data
+    const chartData = {
       labels: last7Days,
       datasets: [
         {
           label: 'Daily Sales (₹)',
           data: last7Days.map(date => dailySales[date] || 0),
           borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.1)',
-          fill: true,
-          tension: 0.1,
-          borderWidth: 2,
-          pointRadius: 4,
-          pointBackgroundColor: 'rgb(75, 192, 192)',
-          pointBorderColor: '#fff',
-          pointHoverRadius: 6,
-          pointHoverBackgroundColor: 'rgb(75, 192, 192)',
-          pointHoverBorderColor: '#fff'
+          tension: 0.1
         }
       ]
-    })
-  }
+    };
+
+    setProfitData(chartData);
+  };
 
   useEffect(() => {
     const fetchWarehouses = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const roles = localStorage.getItem('role')
+        const token = localStorage.getItem('token');
+        const roles = localStorage.getItem('role');
         const response = await fetch('http://localhost:8787/warehouses', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
             'role': roles || ''
           }
-        })
-
-        if (!response.ok) throw new Error('Failed to fetch warehouses')
-        const data = await response.json()
-        setWarehouses(data)
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch warehouses');
+        }
+        
+        const data = await response.json();
+        console.log('Fetched warehouses:', data); // Debug log
+        setWarehouses(data);
       } catch (error) {
-        console.error('Error fetching warehouses:', error)
+        console.error('Error fetching warehouses:', error);
       }
-    }
+    };
 
-    fetchWarehouses()
-  }, [])
+    fetchWarehouses();
+  }, []);
 
   useEffect(() => {
     const fetchSalesData = async () => {
-      if (!selectedWarehouse) return
+      if (!selectedWarehouse) return;
 
       try {
-        const token = localStorage.getItem('token')
-        const response = await fetch(
-          `http://localhost:8787/dashboard/profits?warehouseId=${selectedWarehouse}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:8787/sales/history`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'warehouseId': selectedWarehouse
           }
-        )
+        });
 
-        if (!response.ok) throw new Error('Failed to fetch sales data')
+        if (!response.ok) {
+          throw new Error('Failed to fetch sales data');
+        }
 
-        const data = await response.json()
-        if (data && Array.isArray(data.sales)) {
-          processChartData(data.sales)
+        const data = await response.json();
+        if (data.sales) {
+          processChartData(data.sales);
         }
       } catch (error) {
-        console.error('Error fetching sales data:', error)
+        console.error('Error fetching sales data:', error);
       }
-    }
+    };
 
-    fetchSalesData()
-  }, [selectedWarehouse])
+    fetchSalesData();
+  }, [selectedWarehouse]);
 
   useEffect(() => {
     const fetchWarehouseStats = async () => {
-      if (!selectedWarehouse) return
+      if (!selectedWarehouse) return;
 
       try {
-        const token = localStorage.getItem('token')
-        const response = await fetch(
-          `http://localhost:8787/dashboard/stats?warehouseId=${selectedWarehouse}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:8787/dashboard/stats?warehouseId=${selectedWarehouse}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
-        )
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch warehouse stats');
+        }
+        
+        const data = await response.json();
+        setStats(data);
 
-        if (!response.ok) throw new Error('Failed to fetch warehouse stats')
-
-        const data = await response.json()
-        setStats(data)
+        const profitResponse = await fetch(`http://localhost:8787/dashboard/profits?warehouseId=${selectedWarehouse}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (profitResponse.ok) {
+          const profitData = await profitResponse.json();
+          // Update chart data here
+          // ... handle profit data update
+        }
       } catch (error) {
-        console.error('Error fetching warehouse stats:', error)
+        console.error('Error fetching warehouse stats:', error);
       }
-    }
+    };
 
-    fetchWarehouseStats()
-  }, [selectedWarehouse])
+    fetchWarehouseStats();
+  }, [selectedWarehouse]);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen w-full overflow-y-auto">
@@ -203,8 +215,8 @@ const Dashboard: React.FC = () => {
         <select
           value={selectedWarehouse}
           onChange={(e) => {
-            setSelectedWarehouse(e.target.value)
-            localStorage.setItem('warehouseId', e.target.value)
+            setSelectedWarehouse(e.target.value);
+            localStorage.setItem('warehouseId', e.target.value);
           }}
           className="p-2 border rounded-md"
         >
@@ -217,6 +229,7 @@ const Dashboard: React.FC = () => {
         </select>
       </div>
 
+      {/* Analytics Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-gray-500">Total Revenue</h3>
@@ -236,71 +249,35 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Profit Chart */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <h2 className="text-xl font-bold mb-4">Sales Trends</h2>
         <div className="h-[400px]">
-          <Line
-            data={profitData}
-            options={{
-              responsive: true,
+          <Line 
+            data={profitData} 
+            options={{ 
               maintainAspectRatio: false,
-              interaction: {
-                mode: 'index',
-                intersect: false,
-              },
               scales: {
                 y: {
                   beginAtZero: true,
-                  grid: {
-                    color: 'rgba(0, 0, 0, 0.1)',
-                  },
                   ticks: {
-                    callback: (value) => `₹${value}`,
-                    font: {
-                      size: 12
-                    }
-                  }
-                },
-                x: {
-                  grid: {
-                    display: false
-                  },
-                  ticks: {
-                    font: {
-                      size: 12
-                    }
+                    callback: (value) => `₹${value}`
                   }
                 }
               },
               plugins: {
-                legend: {
-                  display: true,
-                  position: 'top' as const,
-                  labels: {
-                    boxWidth: 10,
-                    usePointStyle: true,
-                    pointStyle: 'circle'
-                  }
-                },
                 tooltip: {
-                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                  padding: 12,
-                  titleFont: {
-                    size: 14
-                  },
-                  bodyFont: {
-                    size: 13
-                  },
                   callbacks: {
-                    label: (context) => `₹${context.parsed.y.toLocaleString()}`
+                    label: (context) => `₹${context.parsed.y}`
                   }
                 }
               }
-            }}
+            }} 
           />
         </div>
       </div>
 
+      {/* Navigation Options */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button
           onClick={() => navigate('/warehouse')}
@@ -322,6 +299,7 @@ const Dashboard: React.FC = () => {
         </button>
       </div>
     </div>
-  )
-}
-export default Dashboard
+  );
+};
+
+export default Dashboard; 

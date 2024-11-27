@@ -27,7 +27,7 @@ app.route('/users', role);
 app.route('/warehouses', warehouses);
 app.route('/', addWareshouse);
 app.route('/warehouse', warehouse);
-app.route('/warehouses', deleteWarehouse);
+app.route('/warehouses/delete', deleteWarehouse);
 app.route('/', addProduct);
 app.route('/', warehouseSales);
 app.route('/', salesRoutes);
