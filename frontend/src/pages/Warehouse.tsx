@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { auth } from "../../../backend/src/routes/auth"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { SearchIcon, PlusIcon, ArrowRightLeft, Clock } from "lucide-react"
+import { SearchIcon, PlusIcon, ArrowRightLeft, Clock, Trash } from "lucide-react"
 
 interface Product {
   id: string
@@ -205,6 +205,13 @@ export default function Warehouse() {
                         >
                           <ArrowRightLeft className="w-4 h-4 mr-1" />
                           Shift
+                        </button>
+                        <button
+                          onClick={() => navigate('/removeproduct', { state: { product } })}
+                          className="text-red-600 hover:text-red-900 flex items-center"
+                        >
+                          <Trash className="w-4 h-4 mr-1" />
+                          Remove
                         </button>
                       </td>
                     </tr>

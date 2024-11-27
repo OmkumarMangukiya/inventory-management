@@ -110,4 +110,62 @@ export class ProductController {
             }, 500);
         }
     }
+
+    public removeProduct = async (c: any) => {
+        try {
+            const warehouseId = c.req.header('warehouseId');
+            if (!warehouseId) {
+                return c.json({ error: 'Warehouse ID is required' }, 400);
+            }
+
+            const token = c.req.header('token');
+            if (!token) {
+                return c.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const user = verify(token, c.env.JWT_SECRET);
+            if (!user) {
+                return c.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const body = await c.req.json();
+            const { productId } = body;
+
+            if (!productId) {
+                return c.json({ error: 'Product ID is required' }, 400);
+            }
+
+            // Find the product
+            const product = await this.prisma.product.findUnique({
+                where: { id: productId }
+            });
+
+            if (!product) {
+                return c.json({ error: 'Product not found' }, 404);
+            }
+
+            // Remove the product from the warehouse
+            await this.prisma.product.delete({
+                where: { id: productId }
+            });
+
+            // Update warehouse stock
+            await this.prisma.warehouse.update({
+                where: { id: warehouseId },
+                data: {
+                    totalstock: {
+                        decrement: product.quantity
+                    }
+                }
+            });
+
+            return c.json({ message: 'Product removed successfully' });
+        } catch (error) {
+            console.error('Error in removeProduct:', error);
+            return c.json({
+                error: 'Failed to remove product',
+                details: error instanceof Error ? error.message : 'Unknown error'
+            }, 500);
+        }
+    }
 } 
